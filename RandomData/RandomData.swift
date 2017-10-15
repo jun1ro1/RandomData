@@ -107,21 +107,37 @@ struct CypherCharacterSet: OptionSet, Hashable {
             case .CurlyBrackets:           s = "{}"
             case .VerticalLine:            s = "|"
             case .Tilde:                   s = "~"
-            default:                       s = ""
+            default:                       s = "UNKNOWN rawValue=\(self.rawValue) "
             }
             return s
         }
         
-        var str = ""
-        var bit: UInt32 = 0x00000001
-        for _ in 0 ..< self.rawValue.bitWidth {
+//        //+BUG
+//        return self.rawValue.words.reduce("", {
+//            (r, e) in return r + tostr(CypherCharacterSet(rawValue: UInt32(e)))
+//        } )
+       
+        return (0 ..< self.rawValue.bitWidth).reduce((UInt32(0x0000_0001), ""), {
+            (arg, _) in
+            var (bit, str) = arg
             let val = CypherCharacterSet(rawValue: bit)
             if self.contains(val) {
                 str += tostr(val)
             }
             bit <<= 1
-        }
-        return str
+            return (bit, str)
+        }).1
+        
+//        var str = ""
+//        var bit: UInt32 = 0x00000001
+//        for _ in 0 ..<  0 {
+//            let val = CypherCharacterSet(rawValue: bit)
+//            if self.contains(val) {
+//                str += tostr(val)
+//            }
+//            bit <<= 1
+//        }
+//    return str
     }
     
 }

@@ -12,9 +12,7 @@ import Foundation
 extension Data {
     static let Zero = Data(count:1)
     
-    func isZero() -> Bool {
-        return self.first(where: {$0 != 0}) == nil
-    }
+    var isZero: Bool { return self.first(where: {$0 != 0}) == nil }
     
     mutating func zerosuppressed() -> Data {
         if let idx = self.index(where: {$0 != 0}) {
@@ -26,7 +24,7 @@ extension Data {
         return self
     }
     
-    func divide(_ divisor: UInt8) -> (Data, UInt8) {
+    func divide(by divisor: UInt8) -> (Data, UInt8) {
         guard divisor != 0 else {
             return ( Data(), UInt8(0) )
         }
@@ -46,16 +44,11 @@ extension Data {
     func als(radix: UInt8) -> Data {
         var dividend = self
         var data = Data(capacity:self.count)
-        while !dividend.isZero() {
-            let (quotinent, remainder) = dividend.divide(radix)
+        while !dividend.isZero {
+            let (quotinent, remainder) = dividend.divide(by: radix)
             data.append(remainder)
             dividend = quotinent
         }
-        if data.isZero() {
-            return Data(count:1)
-        }
-        else {
-            return Data(data.reversed())
-        }
+        return data.isZero ? Data(count:1) : Data(data.reversed())
     }
 }
