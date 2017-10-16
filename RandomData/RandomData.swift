@@ -14,6 +14,18 @@ struct CypherCharacterSet: OptionSet, Hashable {
     init(rawValue: UInt32) { self.rawValue = rawValue }
     var hashValue: Int { return Int(self.rawValue) }
     
+    static var iterator: AnyIterator<CypherCharacterSet> {
+        var value: CypherCharacterSet.RawValue = 1
+        return AnyIterator {
+            guard value != CypherCharacterSet.TypeEnd.rawValue else {
+                return nil
+            }
+            let r = CypherCharacterSet(rawValue: value)
+            value <<= 1
+            return r
+        }
+    }
+    
     static let ExclamationMark         = CypherCharacterSet(rawValue: 0x00000001) // "!"
     static let QuotationMark           = CypherCharacterSet(rawValue: 0x00000002) // '"'
     static let NumberSign              = CypherCharacterSet(rawValue: 0x00000004) // "#"
@@ -45,6 +57,7 @@ struct CypherCharacterSet: OptionSet, Hashable {
     static let CurlyBrackets           = CypherCharacterSet(rawValue: 0x10000000) // "{", "}"
     static let VerticalLine            = CypherCharacterSet(rawValue: 0x20000000) // "|"
     static let Tilde                   = CypherCharacterSet(rawValue: 0x40000000) // "~"
+    static let TypeEnd                 = CypherCharacterSet(rawValue: 0x80000000) // Type End
     
     static let UpperCaseLettersSet:     CypherCharacterSet = [.DecimalDigits, .UppercaseLatinAlphabets]
     static let LowerCaseLettersSet:     CypherCharacterSet = [.DecimalDigits, .LowercaseLatinAlphabets]
@@ -71,81 +84,57 @@ struct CypherCharacterSet: OptionSet, Hashable {
         .VerticalLine,
         .Tilde
     ]
-    
-    var string: String {
-        let tostr = { (val: CypherCharacterSet) -> String in
-            let s: String
-            switch val {
-            case .ExclamationMark:         s = "!"
-            case .QuotationMark:           s = "\""
-            case .NumberSign:              s = "#"
-            case .DollarSign:              s = "$"
-            case .PercentSign:             s = "%"
-            case .Ampersand:               s = "&"
-            case .Apostrophe:              s = "'"
-            case .Parenthesises:           s = "()"
-            case .Asterisk:                s = "*"
-            case .PlusSign:                s = "+"
-            case .Comma:                   s = ""
-            case .HyphenMinus:             s = "-"
-            case .FullStop:                s = "."
-            case .Solidus:                 s = "/"
-            case .DecimalDigits:           s = "0123456789"
-            case .Colon:                   s = ":"
-            case .Semicolon:               s = ";"
-            case .LessAndGreaterThanSigns: s = "<>"
-            case .EqualsSign:              s = "="
-            case .QuestionMark:            s = "?"
-            case .CommercialAt:            s = "@"
-            case .UppercaseLatinAlphabets: s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            case .SquareBrackets:          s = "[]"
-            case .ReverseSolidus:          s = "\\"
-            case .CircumflexAccent:        s = "^"
-            case .LowLine:                 s = "_"
-            case .GraveAccent:             s = "`"
-            case .LowercaseLatinAlphabets: s = "abcdefghijklmnopqrstuvwxyz"
-            case .CurlyBrackets:           s = "{}"
-            case .VerticalLine:            s = "|"
-            case .Tilde:                   s = "~"
-            default:                       s = "UNKNOWN rawValue=\(self.rawValue) "
-            }
-            return s
+
+    fileprivate var tostr: String {
+        let s: String
+        switch self {
+        case .ExclamationMark:         s = "!"
+        case .QuotationMark:           s = "\""
+        case .NumberSign:              s = "#"
+        case .DollarSign:              s = "$"
+        case .PercentSign:             s = "%"
+        case .Ampersand:               s = "&"
+        case .Apostrophe:              s = "'"
+        case .Parenthesises:           s = "()"
+        case .Asterisk:                s = "*"
+        case .PlusSign:                s = "+"
+        case .Comma:                   s = ""
+        case .HyphenMinus:             s = "-"
+        case .FullStop:                s = "."
+        case .Solidus:                 s = "/"
+        case .DecimalDigits:           s = "0123456789"
+        case .Colon:                   s = ":"
+        case .Semicolon:               s = ";"
+        case .LessAndGreaterThanSigns: s = "<>"
+        case .EqualsSign:              s = "="
+        case .QuestionMark:            s = "?"
+        case .CommercialAt:            s = "@"
+        case .UppercaseLatinAlphabets: s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        case .SquareBrackets:          s = "[]"
+        case .ReverseSolidus:          s = "\\"
+        case .CircumflexAccent:        s = "^"
+        case .LowLine:                 s = "_"
+        case .GraveAccent:             s = "`"
+        case .LowercaseLatinAlphabets: s = "abcdefghijklmnopqrstuvwxyz"
+        case .CurlyBrackets:           s = "{}"
+        case .VerticalLine:            s = "|"
+        case .Tilde:                   s = "~"
+        default:                       s = "UNKNOWN rawValue=\(self.rawValue) "
         }
-        
-//        //+BUG
-//        return self.rawValue.words.reduce("", {
-//            (r, e) in return r + tostr(CypherCharacterSet(rawValue: UInt32(e)))
-//        } )
-       
-        return (0 ..< self.rawValue.bitWidth).reduce((UInt32(0x0000_0001), ""), {
-            (arg, _) in
-            var (bit, str) = arg
-            let val = CypherCharacterSet(rawValue: bit)
-            if self.contains(val) {
-                str += tostr(val)
-            }
-            bit <<= 1
-            return (bit, str)
-        }).1
-        
-//        var str = ""
-//        var bit: UInt32 = 0x00000001
-//        for _ in 0 ..<  0 {
-//            let val = CypherCharacterSet(rawValue: bit)
-//            if self.contains(val) {
-//                str += tostr(val)
-//            }
-//            bit <<= 1
-//        }
-//    return str
+        return s
     }
-    
+
+    var string: String {
+        return CypherCharacterSet.iterator.flatMap {
+            self.contains($0) ? $0.tostr : nil
+        }.joined()
+    }
 }
 
 class J1RandomData {
     static let shared = J1RandomData()
     static let MaxCount = 1024
-
+    
     func get(count: Int) -> Data? {
         guard 0 < count && count <= J1RandomData.MaxCount else {
             return nil
@@ -167,7 +156,7 @@ class J1RandomData {
         guard 0 < count && count <= J1RandomData.MaxCount else {
             return nil
         }
-
+        
         var charArray: [Character] = charSet.string.map { $0 }
         let charCount = charArray.count
         let indexTotalCount: Int = {
@@ -179,7 +168,7 @@ class J1RandomData {
             }
             return (n * count + 7) / 8  // how many bytes are needed to represent charArray
         }()
-
+        
         var string = ""
         string.reserveCapacity(count)
         var remains = indexTotalCount
