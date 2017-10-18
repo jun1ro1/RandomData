@@ -26,6 +26,12 @@ struct CypherCharacterSet: OptionSet, Hashable {
         }
     }
     
+    var count: Int {
+        return CypherCharacterSet.iterator.reduce(0) {
+            $0 + (self.contains($1) ? 1 : 0)
+        }
+    }
+    
     static let ExclamationMark         = CypherCharacterSet(rawValue: 0x00000001) // "!"
     static let QuotationMark           = CypherCharacterSet(rawValue: 0x00000002) // '"'
     static let NumberSign              = CypherCharacterSet(rawValue: 0x00000004) // "#"
@@ -84,6 +90,7 @@ struct CypherCharacterSet: OptionSet, Hashable {
         .VerticalLine,
         .Tilde
     ]
+    static let AllCharactersSet = CypherCharacterSet(rawValue: CypherCharacterSet.TypeEnd.rawValue - 1)
 
     fileprivate var tostr: String {
         let s: String
@@ -128,6 +135,29 @@ struct CypherCharacterSet: OptionSet, Hashable {
         return CypherCharacterSet.iterator.flatMap {
             self.contains($0) ? $0.tostr : nil
         }.joined()
+    }
+    
+    var description: String {
+        let specialSets = [
+            CypherCharacterSet.UpperCaseLettersSet: "0-9A-Z",
+            CypherCharacterSet.LowerCaseLettersSet: "0-9a-z",
+            CypherCharacterSet.AlphaNumericsSet: "0-9A-Za-z",
+            CypherCharacterSet.Base64Set: "0-9A-Za-z +/",
+            CypherCharacterSet.ArithmeticCharactersSet: "0-9A-Za-z +-*/",
+            CypherCharacterSet.AlphaNumericSymbolsSet: "0-9A-Za-z +-*/= !#$%&?@^_|~"
+            ].sorted(by: {$0.key.count > $1.key.count})
+        
+        var val = self
+        var strArray: [String] = []
+        specialSets.forEach { e in
+            if val.contains(e.key) {
+                strArray.append(e.value)
+                val.remove(e.key)
+            }
+        }
+        strArray.append(val.string)
+
+        return strArray.joined(separator: " ")
     }
 }
 
