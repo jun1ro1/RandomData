@@ -26,10 +26,25 @@ struct CypherCharacterSet: OptionSet, Hashable {
         }
     }
     
-    var count: Int {
-        return CypherCharacterSet.iterator.reduce(0) {
-            $0 + (self.contains($1) ? 1 : 0)
+    func makeIterator() -> AnyIterator<CypherCharacterSet> {
+        var bit: UInt32 = 1
+        return AnyIterator {
+            while bit < CypherCharacterSet.TypeEnd.rawValue &&
+                !self.contains(CypherCharacterSet(rawValue: bit)) {
+                bit <<= 1
+            }
+            guard bit < CypherCharacterSet.TypeEnd.rawValue else {
+                return nil
+            }
+            let r = CypherCharacterSet(rawValue: bit)
+            bit <<= 1
+            return r
         }
+
+    }
+    
+    var count: Int {
+        return self.makeIterator().map {_ in 1}.reduce(0) {$0+$1}
     }
     
     static let ExclamationMark         = CypherCharacterSet(rawValue: 0x00000001) // "!"
