@@ -38,6 +38,9 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
             print(); print()
     }
     print("----------")
+    
+    let cipher = Cipher()
+    cipher.prepare(passPhrase: "password")
 }
 
 

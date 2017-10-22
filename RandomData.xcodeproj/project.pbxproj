@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F9BD133B1F9C659300DA116E /* Cipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BD133A1F9C659300DA116E /* Cipher.swift */; };
+		F9BD133F1F9CA42B00DA116E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9BD133E1F9CA42B00DA116E /* Security.framework */; };
 		F9E95B8C1F890B8B00396328 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B8B1F890B8B00396328 /* main.swift */; };
 		F9E95B931F890BAE00396328 /* AsBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B921F890BAE00396328 /* AsBytes.swift */; };
 		F9E95B951F89110400396328 /* RandomData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B941F89110400396328 /* RandomData.swift */; };
@@ -25,6 +27,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F9BD133A1F9C659300DA116E /* Cipher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cipher.swift; sourceTree = "<group>"; };
+		F9BD133C1F9C767E00DA116E /* RandomData-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RandomData-Bridging-Header.h"; sourceTree = "<group>"; };
+		F9BD133E1F9CA42B00DA116E /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		F9E95B881F890B8B00396328 /* RandomData */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RandomData; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9E95B8B1F890B8B00396328 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F9E95B921F890BAE00396328 /* AsBytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsBytes.swift; sourceTree = "<group>"; };
@@ -36,17 +41,27 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9BD133F1F9CA42B00DA116E /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F9BD133D1F9CA42B00DA116E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F9BD133E1F9CA42B00DA116E /* Security.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F9E95B7F1F890B8B00396328 = {
 			isa = PBXGroup;
 			children = (
 				F9E95B8A1F890B8B00396328 /* RandomData */,
 				F9E95B891F890B8B00396328 /* Products */,
+				F9BD133D1F9CA42B00DA116E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,9 +76,11 @@
 		F9E95B8A1F890B8B00396328 /* RandomData */ = {
 			isa = PBXGroup;
 			children = (
+				F9BD133C1F9C767E00DA116E /* RandomData-Bridging-Header.h */,
 				F9E95B8B1F890B8B00396328 /* main.swift */,
 				F9E95B921F890BAE00396328 /* AsBytes.swift */,
 				F9E95B941F89110400396328 /* RandomData.swift */,
+				F9BD133A1F9C659300DA116E /* Cipher.swift */,
 			);
 			path = RandomData;
 			sourceTree = "<group>";
@@ -128,6 +145,7 @@
 			files = (
 				F9E95B951F89110400396328 /* RandomData.swift in Sources */,
 				F9E95B931F890BAE00396328 /* AsBytes.swift in Sources */,
+				F9BD133B1F9C659300DA116E /* Cipher.swift in Sources */,
 				F9E95B8C1F890B8B00396328 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -247,6 +265,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XLW76U7H2R;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "RandomData/RandomData-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
@@ -257,6 +276,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XLW76U7H2R;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "RandomData/RandomData-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
