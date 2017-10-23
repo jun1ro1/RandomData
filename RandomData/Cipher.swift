@@ -13,7 +13,7 @@ class Cipher {
     var encryptedCEK: String
     init() {
         self.saltStr = ""
-        self.rounds  = 10000
+        self.rounds  = 100000
         self.encryptedCEK = ""
     }
     
@@ -50,8 +50,6 @@ class Cipher {
         let kekStr = kekBin.base64EncodedString()
         
         print("status=", status)
-        print("kekBin=", kekBin as NSData)
-        print("kekStr=", kekStr)
         
         guard let ivBin  = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
             return
@@ -62,30 +60,38 @@ class Cipher {
         var encryptedCekBin = Data(count: cekBin.count + kCCKeySizeAES256)
         
         // https://stackoverflow.com/questions/25754147/issue-using-cccrypt-commoncrypt-in-swift
+        // https://stackoverflow.com/questions/37680361/aes-encryption-in-swift
         var dataMoved = 0
         let keklen = kekBin.count
         let encryptedCekLen = encryptedCekBin.count
-        let stat: CCCryptorStatus =
-            ivBin.withUnsafeBytes { ivPtr -> CCCryptorStatus in
-                kekBin.withUnsafeBytes { kekPtr -> CCCryptorStatus in
-                    cekBin.withUnsafeBytes { cekPtr -> CCCryptorStatus in
-                        encryptedCekBin.withUnsafeMutableBytes {
-                            encryptedCekPtr -> CCCryptorStatus in
-                            CCCrypt(
+        let stat =
+            encryptedCekBin.withUnsafeMutableBytes { encryptedCekPtr in
+                ivBin.withUnsafeBytes { ivPtr in
+                    kekBin.withUnsafeBytes { kekPtr in
+                        cekBin.withUnsafeBytes { cekPtr in
+                            return CCCrypt(
                                 CCOperation(kCCEncrypt),
                                 CCAlgorithm(kCCAlgorithmAES128),
                                 CCOptions(kCCOptionPKCS7Padding),
-                                UnsafePointer(kekPtr), keklen,
-                                UnsafePointer(ivPtr),
-                                UnsafePointer(cekPtr), cekBin.count,
-                                UnsafeMutableRawPointer(encryptedCekPtr), encryptedCekLen,
+                                kekPtr, keklen,
+                                ivPtr,
+                                cekPtr, cekBin.count,
+                                encryptedCekPtr, encryptedCekLen,
                                 &dataMoved)
                         }
                     }
                 }
             }
+        if stat == kCCSuccess {
+            encryptedCekBin.removeSubrange(dataMoved..<encryptedCekLen)
+        }
         
+        print("kekBin=       ", kekBin as NSData)
+        print("kekStr=       ", kekStr)
+
+        print("plain     CEK=", cekBin as NSData)
         print("encrypted CEK=", encryptedCekBin as NSData)
+        print("stat=", stat)
         //        CCCryptorStatus CCCrypt(
         //            CCOperation op,         /* kCCEncrypt, etc. */
         //            CCAlgorithm alg,        /* kCCAlgorithmAES128, etc. */
