@@ -8,103 +8,94 @@ import Foundation
 
 class Cipher {
     let version = 1
-    var saltStr: String
+    var strSALT: String
     var rounds: UInt32
-    var encryptedCEK: String
+    var strEncCEK: String
     init() {
-        self.saltStr = ""
+        self.strSALT = ""
         self.rounds  = 100000
-        self.encryptedCEK = ""
+        self.strEncCEK = ""
     }
     
     func prepare(passPhrase: String) {
-        guard let saltBin = J1RandomData.shared.get(count: 16) else {
+        guard let binSALT = J1RandomData.shared.get(count: 16) else {
             return
         }
-        self.saltStr = saltBin.base64EncodedString()
+        self.strSALT = binSALT.base64EncodedString()
         
-        let passBin = passPhrase.data(using: .utf8, allowLossyConversion: true)!
+        let binPASS = passPhrase.data(using: .utf8, allowLossyConversion: true)!
         
-        var kekBin = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
+        var binKEK = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
         
+        var status: CCCryptorStatus = CCCryptorStatus(kCCSuccess)
         // https://opensource.apple.com/source/CommonCrypto/CommonCrypto-55010/CommonCrypto/CommonKeyDerivation.h
         // https://github.com/apportable/CommonCrypto/blob/master/include/CommonCrypto/CommonKeyDerivation.h
         // https://stackoverflow.com/questions/25691613/swift-how-to-call-cckeyderivationpbkdf-from-swift
-        let status =
-            saltBin.withUnsafeBytes { saltPtr -> Int32 in
-                passBin.withUnsafeBytes { passPtr -> Int32 in
-                    kekBin.withUnsafeMutableBytes { kekPtr -> Int32 in
+        status =
+            binSALT.withUnsafeBytes { ptrSALT in
+                binPASS.withUnsafeBytes { ptrPASS in
+                    binKEK.withUnsafeMutableBytes { ptrKEK in
                         CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
-                                             UnsafePointer(passPtr), passBin.count,
-                                             UnsafePointer(saltPtr), saltBin.count,
+                                             ptrPASS, binPASS.count,
+                                             ptrSALT, binSALT.count,
                                              CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
                                              self.rounds,
-                                             UnsafeMutablePointer(kekPtr), kekBin.count)
+                                             ptrKEK, binKEK.count)
                     }
                 }
-            }
-        guard status != kCCParamError else {
+        }
+        print("CCKeyDerivationPBKDF status=", status)
+        guard status == CCCryptorStatus(kCCSuccess) else {
             return
         }
+        let strKEK = binKEK.base64EncodedString()
         
-        let kekStr = kekBin.base64EncodedString()
-        
-        print("status=", status)
-        
-        guard let ivBin  = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
+        guard let binIV  = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
             return
         }
-        guard let cekBin = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
+        let strIV = binIV.base64EncodedString()
+        guard let binCEK = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
             return
         }
-        var encryptedCekBin = Data(count: cekBin.count + kCCKeySizeAES256)
+        var binEncCEK = Data(count: binCEK.count + kCCKeySizeAES256)
         
         // https://stackoverflow.com/questions/25754147/issue-using-cccrypt-commoncrypt-in-swift
         // https://stackoverflow.com/questions/37680361/aes-encryption-in-swift
-        var dataMoved = 0
-        let keklen = kekBin.count
-        let encryptedCekLen = encryptedCekBin.count
-        let stat =
-            encryptedCekBin.withUnsafeMutableBytes { encryptedCekPtr in
-                ivBin.withUnsafeBytes { ivPtr in
-                    kekBin.withUnsafeBytes { kekPtr in
-                        cekBin.withUnsafeBytes { cekPtr in
-                            return CCCrypt(
+        var dataOutMoved = 0
+        status =
+            binIV.withUnsafeBytes { ivPtr in
+                binKEK.withUnsafeBytes { ptrKEK in
+                    binCEK.withUnsafeBytes { cekPtr in
+                        binEncCEK.withUnsafeMutableBytes { ptrEncCEK in
+                            CCCrypt(
                                 CCOperation(kCCEncrypt),
                                 CCAlgorithm(kCCAlgorithmAES128),
                                 CCOptions(kCCOptionPKCS7Padding),
-                                kekPtr, keklen,
+                                ptrKEK, binKEK.count,
                                 ivPtr,
-                                cekPtr, cekBin.count,
-                                encryptedCekPtr, encryptedCekLen,
-                                &dataMoved)
+                                cekPtr, binCEK.count,
+                                ptrEncCEK, binEncCEK.count,
+                                &dataOutMoved)
                         }
                     }
                 }
-            }
-        if stat == kCCSuccess {
-            encryptedCekBin.removeSubrange(dataMoved..<encryptedCekLen)
         }
+        print("CCCrypt(Encrypt) status=", status)
+        if status == kCCSuccess {
+            binEncCEK.removeSubrange(dataOutMoved..<binEncCEK.count)
+        }
+        self.strEncCEK = binEncCEK.base64EncodedString()
         
-        print("kekBin=       ", kekBin as NSData)
-        print("kekStr=       ", kekStr)
+        print("binSALT  =", binSALT as NSData)
+        print("strSALT  =", self.strSALT)
+        print("binKEK   =", binKEK as NSData)
+        print("strKEK   =", strKEK)
+        print("binIV    =", binIV  as NSData)
+        print("strIV    =", strIV)
 
-        print("plain     CEK=", cekBin as NSData)
-        print("encrypted CEK=", encryptedCekBin as NSData)
-        print("stat=", stat)
-        //        CCCryptorStatus CCCrypt(
-        //            CCOperation op,         /* kCCEncrypt, etc. */
-        //            CCAlgorithm alg,        /* kCCAlgorithmAES128, etc. */
-        //            CCOptions options,      /* kCCOptionPKCS7Padding, etc. */
-        //            const void *key,
-        //            size_t keyLength,
-        //            const void *iv,         /* optional initialization vector */
-        //            const void *dataIn,     /* optional per op and alg */
-        //            size_t dataInLength,
-        //            void *dataOut,          /* data RETURNED here */
-        //            size_t dataOutAvailable,
-        //            size_t *dataOutMoved)
-        
+        print("binCEK   =", binCEK as NSData)
+        print("binEncCEK=", binEncCEK as NSData)
+        print("strEncCEK=", self.strEncCEK)
     }
 }
 
