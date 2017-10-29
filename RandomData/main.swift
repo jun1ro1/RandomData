@@ -41,6 +41,26 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
     
     let cipher = Cipher()
     cipher.prepare(passPhrase: "The quick brown fox jumps over the lazy white dog.")
+    print("----------")
+    cipher.restore(passPhrase: "The quick brown fox jumps over the lazy white dog.")
+
+    print("----------")
+    let data = J1RandomData.shared.get(count: 16)
+    print("plain data=", data! as NSData)
+    print("---")
+
+    let enc = cipher.withCEK(passPhrase: "The quick brown fox jumps over the lazy white dog.") {
+        cek in cipher.encrypt(CEK:cek, data!)!
+    }
+    print("enc   data=", enc! as NSData)
+    print("---")
+
+    let dec = cipher.withCEK(passPhrase: "The quick brown fox jumps over the lazy white dog.") {
+        cek in cipher.decrypt(CEK:cek, enc!)!
+    }
+    print("dec   data=", dec! as NSData)
+    print("---")
+
 }
 
 
