@@ -10,6 +10,7 @@
 		F9BD133B1F9C659300DA116E /* Cipher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9BD133A1F9C659300DA116E /* Cipher.swift */; };
 		F9BD133F1F9CA42B00DA116E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9BD133E1F9CA42B00DA116E /* Security.framework */; };
 		F9D894971FAD6DCF000BB389 /* J1CryptorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */; };
+		F9DEC7F81FAF35EF00016C88 /* J1Cryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */; };
 		F9E95B8C1F890B8B00396328 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B8B1F890B8B00396328 /* main.swift */; };
 		F9E95B931F890BAE00396328 /* AsBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B921F890BAE00396328 /* AsBytes.swift */; };
 		F9E95B951F89110400396328 /* RandomData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B941F89110400396328 /* RandomData.swift */; };
@@ -32,6 +33,7 @@
 		F9BD133C1F9C767E00DA116E /* RandomData-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RandomData-Bridging-Header.h"; sourceTree = "<group>"; };
 		F9BD133E1F9CA42B00DA116E /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = J1CryptorCore.swift; sourceTree = "<group>"; };
+		F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = J1Cryptor.swift; sourceTree = "<group>"; };
 		F9E95B881F890B8B00396328 /* RandomData */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = RandomData; sourceTree = BUILT_PRODUCTS_DIR; };
 		F9E95B8B1F890B8B00396328 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F9E95B921F890BAE00396328 /* AsBytes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsBytes.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 				F9E95B941F89110400396328 /* RandomData.swift */,
 				F9BD133A1F9C659300DA116E /* Cipher.swift */,
 				F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */,
+				F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */,
 			);
 			path = RandomData;
 			sourceTree = "<group>";
@@ -146,6 +149,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9DEC7F81FAF35EF00016C88 /* J1Cryptor.swift in Sources */,
 				F9E95B951F89110400396328 /* RandomData.swift in Sources */,
 				F9E95B931F890BAE00396328 /* AsBytes.swift in Sources */,
 				F9D894971FAD6DCF000BB389 /* J1CryptorCore.swift in Sources */,

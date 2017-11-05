@@ -37,39 +37,26 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
             }
             print(); print()
     }
-    print("----------")
-    
-    let cryptor = J1CryptorCore()
-    
-    let password = "The quick brown fox jumps over the lazy white dog."
-    cryptor.create(password: password)
-    print("----------")
-    cryptor.open(password: password)
-    
-    
-    
-//    let cipher = Cipher()
-//    cipher.prepare(passPhrase: "The quick brown fox jumps over the lazy white dog.")
-//    print("----------")
-//    cipher.restore(passPhrase: "The quick brown fox jumps over the lazy white dog.")
-//
-//    print("----------")
-//    let data = J1RandomData.shared.get(count: 16)
-//    print("plain data=", data! as NSData)
-//    print("---")
-//
-//    let enc = cipher.withCEK(passPhrase: "The quick brown fox jumps over the lazy white dog.") {
-//        cek in cipher.encrypt(CEK:cek, data!)!
-//    }
-//    print("enc   data=", enc! as NSData)
-//    print("---")
-//
-//    let dec = cipher.withCEK(passPhrase: "The quick brown fox jumps over the lazy white dog.") {
-//        cek in cipher.decrypt(CEK:cek, enc!)!
-//    }
-//    print("dec   data=", dec! as NSData)
-//    print("---")
-//
 }
 
+print("==========")
+
+let password = "The quick brown fox jumps over the lazy white dog."
+J1CryptorCore.shared.create(password: password)
+
+let cryptor = J1Cryptor()
+print("----------")
+cryptor.open(password: password)
+let plain       = "The plain text. very long long 123456789012345678901234567890"
+let plainData   = plain.data(using: .utf8, allowLossyConversion: true)!
+let cipher      = cryptor.encrypt(plain: plainData)!
+let replainData = cryptor.decrypt(cipher: cipher)!
+let replain     = String(data: replainData, encoding: .utf8)!
+cryptor.close()
+
+print("plain       =", plain)
+print("plainData   =", plainData   as NSData)
+print("cipher      =", cipher      as NSData)
+print("replainData =", replainData as NSData)
+print("replain     =", replain)
 

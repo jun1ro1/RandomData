@@ -84,22 +84,37 @@ extension String {
     }
 } // extension String
 
+class J1CryptorSession {
+    var sessionKey: Data
+    var sessionKEK: Data
+    
+    init(sessionKey: Data, sessionKEK: Data) {
+        self.sessionKey = sessionKey
+        self.sessionKEK = sessionKEK
+    }
+}
+
 class J1CryptorCore {
     // secitem
     let version = 1
     var strSALT: String
     var rounds: UInt32
     var strEncCEK: String
-    
-    // instance variables
     var strHshCHECK: String
     var strEncCHECK: String
+    
+    // instance variables
+    var sessions: [Int: J1CryptorSession]
+
+    static var shared = J1CryptorCore()
+    
     init() {
         self.strSALT = ""
         self.rounds  = 100000
         self.strEncCEK = ""
         self.strHshCHECK = ""
         self.strEncCHECK = ""
+        self.sessions = [:]
     }
     
     // MARK: - methods
@@ -145,32 +160,15 @@ class J1CryptorCore {
         }
         
         // encrypt the CEK with the KEK
-        var binEncCEK = Data(count: binCEK.count + kCCKeySizeAES256)
         // https://stackoverflow.com/questions/25754147/issue-using-cccrypt-commoncrypt-in-swift
         // https://stackoverflow.com/questions/37680361/aes-encryption-in-swift
-        var dataOutMoved = 0
-        status =
-            binKEK.withUnsafeBytes { ptrKEK in
-                binCEK.withUnsafeBytes { ptrCEK in
-                    binEncCEK.withUnsafeMutableBytes { ptrEncCEK in
-                        CCCrypt(
-                            CCOperation(kCCEncrypt),
-                            CCAlgorithm(kCCAlgorithmAES128),
-                            CCOptions(kCCOptionPKCS7Padding),
-                            ptrKEK, binKEK.count,
-                            nil,
-                            ptrCEK, binCEK.count,
-                            ptrEncCEK, binEncCEK.count,
-                            &dataOutMoved)
-                    }
-                }
-        }
-//        binKEK.resetBytes(in: binKEK.startIndex..<binKEK.endIndex)
-        print("CCCrypt(Encrypt) status=", status)
-        if status == kCCSuccess {
-            binEncCEK.removeSubrange(dataOutMoved..<binEncCEK.count)
+        guard let binEncCEK = binCEK.encrypt(with: binKEK) else {
+            return
         }
         self.strEncCEK = binEncCEK.base64EncodedString()
+
+//        binKEK.resetBytes(in: binKEK.startIndex..<binKEK.endIndex)
+        print("CCCrypt(Encrypt) status=", status)
         
         print("binSALT  =", binSALT as NSData)
         print("strSALT  =", self.strSALT)
@@ -199,12 +197,12 @@ class J1CryptorCore {
 
     }
     
-    func open(password: String) {
+    func open(password: String, cryptor: J1Cryptor) -> Data? {
         var status: CCCryptorStatus = CCCryptorStatus(kCCSuccess)
         
         // get SALT
         guard let binSALT = Data(base64Encoded: self.strSALT, options: .ignoreUnknownCharacters) else {
-            return
+            return nil
         }
         
         // get KEK from SALT, password
@@ -224,34 +222,76 @@ class J1CryptorCore {
                                              ptrKEK, binKEK.count)
                     }
                 }
-        }
+            }
         print("CCKeyDerivationPBKDF status=", status)
         print("binKEK   =", binKEK as NSData)
         guard status == CCCryptorStatus(kCCSuccess) else {
-            return
+            return nil
         }
         
         // get CEK with KEK
         guard let binCEK = self.strEncCEK.decrypt(with: binKEK) else {
-            return
+            return nil
         }
         print("strEncCEK=", self.strEncCEK)
         print("binCEK   =", binCEK as NSData)
 
         guard let orgHshCHECK = Data(base64Encoded: self.strHshCHECK, options: .ignoreUnknownCharacters) else {
-            return
+            return nil
         }
         // get binary CHECK
         guard let binDecCHECK = self.strEncCHECK.decrypt(with: binCEK) else {
-            return
+            return nil
         }
         let hshCHECK = binDecCHECK.hash()
         print("binCEK      =", binCEK as NSData)
         print("orgHshCHECK =", orgHshCHECK as NSData)
         print("hshCHECK    =", hshCHECK as NSData)
 
-        orgHshCHECK == hshCHECK ? print("open successful") : print("open error")
-        return
+        guard orgHshCHECK == hshCHECK else {
+            print("open error")
+            return nil
+        }
+        guard let binSEK = J1RandomData.shared.get(count: kCCKeySizeAES256) else {
+            return nil
+        }
+        guard let binSEKKEK = binKEK.encrypt(with: binSEK) else {
+            return nil
+        }
+        self.sessions[ObjectIdentifier(cryptor).hashValue] =
+            J1CryptorSession(sessionKey: binSEK, sessionKEK: binSEKKEK)
+        return binSEK
     }
+    
+    func close(cryptor: J1Cryptor) {
+        self.sessions.removeValue(forKey: ObjectIdentifier(cryptor).hashValue)
+    }
+    
+    func encrypt(cryptor: J1Cryptor, plain: Data) -> Data? {
+        guard let session = self.sessions[ObjectIdentifier(cryptor).hashValue] else {
+            return nil
+        }
+        guard let kek = session.sessionKEK.decrypt(with: session.sessionKey) else {
+            return nil
+        }
+        guard let key = self.strEncCEK.decrypt(with: kek) else {
+            return nil
+        }
+        return plain.encrypt(with: key)
+    }
+    
+    func decrypt(cryptor: J1Cryptor, cipher: Data) -> Data? {
+        guard let session = self.sessions[ObjectIdentifier(cryptor).hashValue] else {
+            return nil
+        }
+        guard let kek = session.sessionKEK.decrypt(with: session.sessionKey) else {
+            return nil
+        }
+        guard let key = self.strEncCEK.decrypt(with: kek) else {
+            return nil
+        }
+        return cipher.decrypt(with: key)
+    }
+
 }
 
