@@ -8,6 +8,82 @@
 
 import Foundation
 
+extension Data {
+    func encrypt(with key: Data) -> Data? {
+        var cipher = Data(count: self.count + kCCKeySizeAES256)
+        var dataOutMoved = 0
+        let status: CCCryptorStatus =
+            key.withUnsafeBytes { ptrKey in
+                self.withUnsafeBytes { ptrPlain in
+                    cipher.withUnsafeMutableBytes { ptrCipher in
+                        CCCrypt(
+                            CCOperation(kCCEncrypt),
+                            CCAlgorithm(kCCAlgorithmAES128),
+                            CCOptions(kCCOptionPKCS7Padding),
+                            ptrKey, key.count,
+                            nil,
+                            ptrPlain, self.count,
+                            ptrCipher, cipher.count,
+                            &dataOutMoved)
+                    }
+                }
+        }
+        print("CCCrypt(Encrypt) status=", status)
+        if status == kCCSuccess {
+            cipher.removeSubrange(dataOutMoved..<cipher.count)
+            return cipher
+        }
+        else {
+            return nil
+        }
+    }
+
+    func decrypt(with key: Data) -> Data? {
+        var plain = Data(count: self.count + kCCKeySizeAES256)
+        var dataOutMoved = 0
+        let status: CCCryptorStatus =
+            key.withUnsafeBytes { ptrKey in
+                self.withUnsafeBytes { ptrCipher in
+                    plain.withUnsafeMutableBytes { ptrPlain in
+                        CCCrypt(
+                            CCOperation(kCCDecrypt),
+                            CCAlgorithm(kCCAlgorithmAES128),
+                            CCOptions(kCCOptionPKCS7Padding),
+                            ptrKey, key.count,
+                            nil,
+                            ptrCipher, self.count,
+                            ptrPlain, plain.count,
+                            &dataOutMoved)
+                    }
+                }
+        }
+        print("CCCrypt(Decrypt) status=", status)
+        if status == kCCSuccess {
+            plain.removeSubrange(dataOutMoved..<plain.count)
+            return plain
+        }
+        else {
+            return nil
+        }
+    }
+    
+    func hash() -> Data {
+        var hashed = Data(count:Int(CC_SHA256_DIGEST_LENGTH))
+        _ = self.withUnsafeBytes { ptrData in
+            hashed.withUnsafeMutableBytes { ptrHashed in
+                CC_SHA256(ptrData, CC_LONG(self.count), ptrHashed)
+            }
+        }
+        return hashed
+    }
+} // extension Data
+
+extension String {
+    func decrypt(with key: Data) -> Data? {
+        return Data(base64Encoded: self, options: .ignoreUnknownCharacters)?.decrypt(with: key)
+    }
+} // extension String
+
 class J1CryptorCore {
     // secitem
     let version = 1
@@ -24,81 +100,6 @@ class J1CryptorCore {
         self.strEncCEK = ""
         self.strHshCHECK = ""
         self.strEncCHECK = ""
-    }
-    
-    func encrypt(data plain: Data, with key: Data) -> Data? {
-        var cipher = Data(count: plain.count + kCCKeySizeAES256)
-        var dataOutMoved = 0
-        let status: CCCryptorStatus =
-            key.withUnsafeBytes { ptrKey in
-                plain.withUnsafeBytes { ptrPlain in
-                    cipher.withUnsafeMutableBytes { ptrCipher in
-                        CCCrypt(
-                            CCOperation(kCCEncrypt),
-                            CCAlgorithm(kCCAlgorithmAES128),
-                            CCOptions(kCCOptionPKCS7Padding),
-                            ptrKey, key.count,
-                            nil,
-                            ptrPlain, plain.count,
-                            ptrCipher, cipher.count,
-                            &dataOutMoved)
-                    }
-                }
-        }
-        print("CCCrypt(Encrypt) status=", status)
-        if status == kCCSuccess {
-            cipher.removeSubrange(dataOutMoved..<cipher.count)
-            return cipher
-        }
-        else {
-            return nil
-        }
-    }
- 
-    func decrypt(data cipher: Data, with key: Data) -> Data? {
-        var plain = Data(count: cipher.count + kCCKeySizeAES256)
-        var dataOutMoved = 0
-        let status: CCCryptorStatus =
-            key.withUnsafeBytes { ptrKey in
-                cipher.withUnsafeBytes { ptrCipher in
-                    plain.withUnsafeMutableBytes { ptrPlain in
-                        CCCrypt(
-                            CCOperation(kCCDecrypt),
-                            CCAlgorithm(kCCAlgorithmAES128),
-                            CCOptions(kCCOptionPKCS7Padding),
-                            ptrKey, key.count,
-                            nil,
-                            ptrCipher, cipher.count,
-                            ptrPlain, plain.count,
-                            &dataOutMoved)
-                    }
-                }
-        }
-        print("CCCrypt(Decrypt) status=", status)
-        if status == kCCSuccess {
-            plain.removeSubrange(dataOutMoved..<plain.count)
-            return plain
-        }
-        else {
-            return nil
-        }
-    }
-    
-    func decrypt(base64Encoded cipher: String, with key: Data) -> Data? {
-        guard let binCipher = Data(base64Encoded: cipher, options: .ignoreUnknownCharacters) else {
-            return nil
-        }
-        return self.decrypt(data: binCipher, with: key)
-    }
-    
-    func hash(data: Data) -> Data {
-        var hashed = Data(count:Int(CC_SHA256_DIGEST_LENGTH))
-        _ = data.withUnsafeBytes { ptrData in
-            hashed.withUnsafeMutableBytes { ptrHashed in
-                CC_SHA256(ptrData, CC_LONG(data.count), ptrHashed)
-            }
-        }
-        return hashed
     }
     
     // MARK: - methods
@@ -182,14 +183,14 @@ class J1CryptorCore {
         guard let binCHECK = J1RandomData.shared.get(count: 16) else {
             return
         }
-        let hshCHECK = self.hash(data: binCHECK)
+        let hshCHECK = binCHECK.hash()
         self.strHshCHECK = hshCHECK.base64EncodedString()
         
         print("binCHECK  =", binCHECK as NSData)
         print("hshCHECK  =", hshCHECK as NSData)
         print("strHshCHECK=", self.strHshCHECK)
         
-        guard let binEncCHECK = self.encrypt(data: binCHECK, with: binCEK) else {
+        guard let binEncCHECK = binCHECK.encrypt(with: binCEK) else {
             return
         }
         self.strEncCHECK = binEncCHECK.base64EncodedString()
@@ -231,7 +232,7 @@ class J1CryptorCore {
         }
         
         // get CEK with KEK
-        guard let binCEK = self.decrypt(base64Encoded: self.strEncCEK, with: binKEK) else {
+        guard let binCEK = self.strEncCEK.decrypt(with: binKEK) else {
             return
         }
         print("strEncCEK=", self.strEncCEK)
@@ -241,20 +242,16 @@ class J1CryptorCore {
             return
         }
         // get binary CHECK
-        guard let binDecCHECK = self.decrypt(base64Encoded: self.strEncCHECK, with: binCEK) else {
+        guard let binDecCHECK = self.strEncCHECK.decrypt(with: binCEK) else {
             return
         }
-        let hshCHECK = self.hash(data: binDecCHECK)
+        let hshCHECK = binDecCHECK.hash()
         print("binCEK      =", binCEK as NSData)
         print("orgHshCHECK =", orgHshCHECK as NSData)
         print("hshCHECK    =", hshCHECK as NSData)
 
-        if orgHshCHECK == hshCHECK {
-            return
-        }
-        else {
-            return
-        }
+        orgHshCHECK == hshCHECK ? print("open successful") : print("open error")
+        return
     }
 }
 
