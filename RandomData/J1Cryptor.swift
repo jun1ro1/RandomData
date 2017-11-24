@@ -9,34 +9,33 @@
 import Foundation
 
 class J1Cryptor {
-    var core: J1CryptorCore
-    var sessionKey: Data?
+    static var core: J1CryptorCore = J1CryptorCore.shared
+    var key: Data?
     
     init() {
-        self.core = J1CryptorCore.shared
-        self.sessionKey = nil
+        self.key = nil
     }
     
     func open(password: String) {
-        self.sessionKey = self.core.open(password: password, cryptor: self)
+        self.key = J1Cryptor.core.open(password: password, cryptor: self)
     }
     
     func close() {
-        self.core.close(cryptor: self)
-        self.sessionKey = nil
+        J1Cryptor.core.close(cryptor: self)
+        self.key = nil
     }
     
     func encrypt(plain: Data) -> Data? {
-        guard self.sessionKey != nil else {
+        guard self.key != nil else {
             return nil
         }
-        return self.core.encrypt(cryptor: self, plain: plain)
+        return J1Cryptor.core.encrypt(cryptor: self, plain: plain)
     }
 
     func decrypt(cipher: Data) -> Data? {
-        guard self.sessionKey != nil else {
+        guard self.key != nil else {
             return nil
         }
-        return self.core.decrypt(cryptor: self, cipher: cipher)
+        return J1Cryptor.core.decrypt(cryptor: self, cipher: cipher)
     }
 }
