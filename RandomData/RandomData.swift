@@ -178,7 +178,7 @@ struct CypherCharacterSet: OptionSet, Hashable {
 
 class J1RandomData {
     static let shared = J1RandomData()
-    static let MaxCount = 1024
+    static let MaxCount = 4096
     
     func get(count: Int) -> Data? {
         guard 0 < count && count <= J1RandomData.MaxCount else {

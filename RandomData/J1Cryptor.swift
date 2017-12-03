@@ -25,6 +25,14 @@ class J1Cryptor {
         self.key = nil
     }
     
+    func open(password: String, _ body:() -> Void ) {
+        self.open(password: password)
+        defer {
+            self.close()
+        }
+        body()
+    }
+
     func encrypt(plain: Data) -> Data? {
         guard self.key != nil else {
             return nil
