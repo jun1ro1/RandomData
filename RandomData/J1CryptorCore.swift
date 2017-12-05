@@ -1,3 +1,4 @@
+
 //
 //  J1CryptorCore.swift
 //  RandomData
@@ -110,7 +111,20 @@ fileprivate class Validator {
     
     init(key: Data) {
         var binMark: Data? = J1RandomData.shared.get(count: 16)
-        defer { purge(&binMark) }
+//        defer { purge(&binMark) }
+//        defer {
+//            if binMark != nil {
+//                binMark!.resetBytes(in: binMark!.startIndex..<binMark!.endIndex)
+//                binMark = nil
+//            }
+//        }
+        defer {
+            binMark!.withUnsafeMutableBytes { ptr in
+                ptr[0] = 0
+
+            }
+        }
+
         guard binMark != nil else { return }
         self.strHashedMark = binMark?.hash().base64EncodedString()
         

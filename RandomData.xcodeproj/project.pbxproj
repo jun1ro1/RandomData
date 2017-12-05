@@ -28,6 +28,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F94617E51FD6FE710078D5EE /* DebugMemo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = DebugMemo.txt; sourceTree = "<group>"; };
 		F9BD133C1F9C767E00DA116E /* RandomData-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RandomData-Bridging-Header.h"; sourceTree = "<group>"; };
 		F9BD133E1F9CA42B00DA116E /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = J1CryptorCore.swift; sourceTree = "<group>"; };
@@ -61,6 +62,7 @@
 		F9E95B7F1F890B8B00396328 = {
 			isa = PBXGroup;
 			children = (
+				F94617E51FD6FE710078D5EE /* DebugMemo.txt */,
 				F9E95B8A1F890B8B00396328 /* RandomData */,
 				F9E95B891F890B8B00396328 /* Products */,
 				F9BD133D1F9CA42B00DA116E /* Frameworks */,

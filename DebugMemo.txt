@@ -1,0 +1,285 @@
+//
+//  DebugMemo
+//  Text
+//  ----------------------------------
+//  Developed with embedXcode
+//
+//  Project 	RandomData
+//  Created by 	OKU Junichirou on 2017/12/06
+//  Copyright 	© 2017年 OKU Junichirou
+//  License	<#license#>
+//
+
+===================================================
+defer { purge(&binMark) }
+
+before purge
+(lldb) p binMark
+(Data?) $R0 = some {
+_backing = 0x0000000101102d10 {
+_bytes = (_rawValue = 0x0000000101101660)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+(lldb) po binMark
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x0000000101101660
+- pointerValue : 4312798816
+▿ bytes : 16 elements
+- 0 : 217
+- 1 : 184
+- 2 : 93
+- 3 : 165
+- 4 : 159
+- 5 : 53
+- 6 : 64
+- 7 : 166
+- 8 : 19
+- 9 : 13
+- 10 : 85
+- 11 : 106
+- 12 : 47
+- 13 : 73
+- 14 : 203
+
+in purge
+(lldb) p data
+(Data?) $R6 = some {
+_backing = 0x0000000101102d10 {
+_bytes = (_rawValue = 0x0000000101101660)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+
+-----------
+after
+(Data?) $R10 = some {
+_backing = 0x0000000101200f50 {
+_bytes = (_rawValue = 0x000000010104e1d0)
+_length = 16
+_capacity = 16
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+(lldb) po data
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x000000010104e1d0
+- pointerValue : 4312064464
+▿ bytes : 16 elements
+- 0 : 0
+- 1 : 0
+- 2 : 0
+- 3 : 0
+- 4 : 0
+- 5 : 0
+- 6 : 0
+- 7 : 0
+- 8 : 0
+- 9 : 0
+- 10 : 0
+- 11 : 0
+- 12 : 0
+- 13 : 0
+- 14 : 0
+- 15 : 0
+
+
+lldb) p binMark
+(Data?) $R15 = nil
+
+===================================================
+
+defer {
+if binMark != nil {
+binMark!.resetBytes(in: binMark!.startIndex..<binMark!.endIndex)
+binMark = nil
+}
+}
+
+(lldb) p binMark
+(Data?) $R2 = some {
+_backing = 0x0000000101167fa0 {
+_bytes = (_rawValue = 0x0000000101166b30)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+(lldb) po binMark
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x0000000101166b30
+- pointerValue : 4313213744
+▿ bytes : 16 elements
+- 0 : 132
+- 1 : 33
+- 2 : 38
+- 3 : 90
+- 4 : 141
+- 5 : 120
+- 6 : 154
+- 7 : 35
+- 8 : 0
+- 9 : 45
+- 10 : 239
+- 11 : 11
+- 12 : 78
+- 13 : 230
+- 14 : 115
+- 15 : 23
+
+(lldb) p binMark
+(Data?) $R5 = some {
+_backing = 0x0000000101169890 {
+_bytes = (_rawValue = 0x000000010113cf80)
+_length = 16
+_capacity = 16
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+
+(lldb) po binMark
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x000000010113cf80
+- pointerValue : 4313042816
+▿ bytes : 16 elements
+- 0 : 0
+- 1 : 0
+- 2 : 0
+- 3 : 0
+- 4 : 0
+- 5 : 0
+- 6 : 0
+- 7 : 0
+- 8 : 0
+- 9 : 0
+- 10 : 0
+- 11 : 0
+- 12 : 0
+- 13 : 0
+- 14 : 0
+- 15 : 0
+
+==============
+binMark!.withUnsafeMutableBytes { ptr in
+ptr[0] = 0
+
+}
+
+
+lldb) p binMark
+(Data?) $R0 = some {
+_backing = 0x0000000100f08090 {
+_bytes = (_rawValue = 0x0000000100f068d0)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+(lldb) po binMark
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x0000000100f068d0
+- pointerValue : 4310722768
+▿ bytes : 16 elements
+- 0 : 191
+- 1 : 64
+- 2 : 42
+- 3 : 51
+- 4 : 137
+- 5 : 249
+- 6 : 74
+- 7 : 216
+- 8 : 53
+- 9 : 152
+- 10 : 248
+- 11 : 91
+- 12 : 153
+- 13 : 203
+- 14 : 1
+- 15 : 97
+
+(lldb)
+
+(lldb) p binMark
+(Data?) $R3 = some {
+_backing = 0x0000000100f08090 {
+_bytes = (_rawValue = 0x0000000100f068d0)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+(lldb) po binMark
+▿ Optional<Data>
+▿ some : 16 bytes
+- count : 16
+▿ pointer : 0x0000000100f068d0
+- pointerValue : 4310722768
+▿ bytes : 16 elements
+- 0 : 191
+- 1 : 64
+- 2 : 42
+- 3 : 51
+- 4 : 137
+- 5 : 249
+- 6 : 74
+- 7 : 216
+- 8 : 53
+- 9 : 152
+- 10 : 248
+- 11 : 91
+- 12 : 153
+- 13 : 203
+- 14 : 1
+- 15 : 97
+
+lldb) p ptr
+(UnsafeMutablePointer<Int>) $R5 = 0x00000001012009e0
