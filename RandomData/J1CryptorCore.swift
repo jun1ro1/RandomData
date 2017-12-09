@@ -119,10 +119,14 @@ fileprivate class Validator {
 //            }
 //        }
         defer {
-            binMark!.withUnsafeMutableBytes { ptr in
-                ptr[0] = 0
+            var d = NSMutableData(data: binMark!)
+            d.resetBytes(in: NSMakeRange(0, d.length))
 
-            }
+//            binMark!.withUnsafeMutableBytes { (ptr: UnsafeMutableRawBufferPointer) -> Void in
+//                var p = UnsafeMutableRawBufferPointer(ptr)
+//                p[0] = 0
+//            }
+            print(d)
         }
 
         guard binMark != nil else { return }

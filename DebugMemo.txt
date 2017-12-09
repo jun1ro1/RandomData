@@ -1,3 +1,121 @@
+0x101904b00: 79 cd 94 9f ff ff 1d 03  02 00 00 00 00 00 00 00  y...............
+0x101904b10: 10 00 00 00 00 00 00 00  14 00 00 00 00 00 00 00  ................
+0x101904b20: d0 19 a0 01 01 00 00 00  00 00 00 00 00 00 00 00  ................
+0x101904b30: 50 94 dd 00 01 00 00 00  01 00 00 00 00 00 00 00  P...............
+
+private var _base = _CFInfo(typeID: CFDataGetTypeID())  79 cd 94 9f ff ff 1d 03 02 00 00 00 00 00 00 00
+private var _length: CFIndex = 0                        10 00 00 00 00 00 00 00
+private var _capacity: CFIndex = 0                      14 00 00 00 00 00 00 00
+private var _deallocator: UnsafeMutableRawPointer? = nil // for CF only
+private var _deallocHandler: _NSDataDeallocator? = _NSDataDeallocator() // for Swift
+private var _bytes: UnsafeMutablePointer<UInt8>? = nil  d0 19 a0 01 01 00 00 00
+
+
+
+
+2017-12-09
+
+(Data) $R2 = {
+_backing = 0x00000001012215c0 {
+_bytes = (_rawValue = 0x000000010121fd40)
+_length = 16
+_capacity = 20
+_needToZero = true
+_deallocator = nil
+_backing = swift
+_offset = 0
+}
+_sliceRange = 0..<16
+}
+
+
+2017-12-08
+(lldb) po/x binMark!
+▿ 16 bytes
+- count : 16
+▿ pointer : 0x0000000100f011d0
+- pointerValue : 4310700496
+▿ bytes : 16 elements
+- 0 : 229
+- 1 : 154
+- 2 : 52
+- 3 : 202
+- 4 : 176
+- 5 : 103
+- 6 : 196
+- 7 : 234
+- 8 : 168
+- 9 : 117
+- 10 : 214
+- 11 : 209
+- 12 : 128
+- 13 : 65
+- 14 : 18
+- 15 : 16
+
+lldb) p/x binMark!
+(Data) $R1 = {
+_backing = 0x0000000100f02b10 {
+_bytes = some (_rawValue = 0x0000000100f011d0)
+_length = 0x0000000000000010
+_capacity = 0x0000000000000014
+_needToZero = true
+_deallocator = none nil
+_backing = swift
+_offset = 0x0000000000000000
+}
+_sliceRange = 0x0000000000000000..<0x0000000000000010
+
+(lldb) memory read 0x0000000100f011d0
+0x100f011d0: e5 9a 34 ca b0 67 c4 ea a8 75 d6 d1 80 41 12 10  ..4..g...u...A..
+0x100f011e0: 02 00 20 00 20 00 3d 00 8e 00 0f 10 00 00 02 00  .. . .=.........
+(lldb)
+
+
+(lldb) po/x binMark!
+▿ 16 bytes
+- count : 16
+▿ pointer : 0x0000000100f011d0
+- pointerValue : 4310700496
+▿ bytes : 16 elements
+- 0 : 229
+- 1 : 154
+- 2 : 52
+- 3 : 202
+- 4 : 176
+- 5 : 103
+- 6 : 196
+- 7 : 234
+- 8 : 168
+- 9 : 117
+- 10 : 214
+- 11 : 209
+- 12 : 128
+- 13 : 65
+- 14 : 18
+- 15 : 16
+
+(lldb) p/x binMark!
+(Data) $R3 = {
+_backing = 0x0000000100f02b10 {
+_bytes = some (_rawValue = 0x0000000100f011d0)
+_length = 0x0000000000000010
+_capacity = 0x0000000000000014
+_needToZero = true
+_deallocator = none nil
+_backing = swift
+_offset = 0x0000000000000000
+}
+_sliceRange = 0x0000000000000000..<0x0000000000000010
+}
+
+(lldb) memory read 0x0000000100f011d0
+0x100f011d0: e5 9a 34 ca b0 67 c4 ea a8 75 d6 d1 80 41 12 10  ..4..g...u...A..
+0x100f011e0: 02 00 20 00 20 00 3d 00 8e 00 0f 10 00 00 02 00  .. . .=.........
+
+
+
+=========================
 //
 //  DebugMemo
 //  Text
