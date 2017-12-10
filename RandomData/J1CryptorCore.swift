@@ -99,6 +99,92 @@ fileprivate extension Data {
     }
 } // extension Data
 
+fileprivate extension NSMutableData {
+    func withUnsafeBytes<Result>(_ body: (UnsafeRawPointer) -> Result) -> Result {
+        let ptr = self.mutableBytes
+        return body(ptr)
+    }
+
+    func withUnsafeMutableBytes<Result>(_ body: (UnsafeMutableRawPointer) -> Result) -> Result {
+        let ptr = self.mutableBytes
+        return body(ptr)
+    }
+
+    func encrypt(with key: Data) -> NSMutableData? {
+        guard let cipher = NSMutableData(length: self.length + kCCKeySizeAES256) else {
+            return nil
+        }
+        var dataOutMoved = 0
+        let status: CCCryptorStatus =
+            key.withUnsafeBytes { ptrKey in
+                self.withUnsafeBytes { ptrPlain in
+                    cipher.withUnsafeMutableBytes { ptrCipher in
+                        CCCrypt(
+                            CCOperation(kCCEncrypt),
+                            CCAlgorithm(kCCAlgorithmAES128),
+                            CCOptions(kCCOptionPKCS7Padding),
+                            ptrKey, key.count,
+                            nil,
+                            ptrPlain, self.length,
+                            ptrCipher, cipher.length,
+                            &dataOutMoved)
+                    }
+                }
+        }
+        #if DEBUG
+            print(String(reflecting: type(of: self)), "\(#function) CCCrypt(Encrypt) status=", status)
+        #endif
+        if status == kCCSuccess {
+            cipher.length = dataOutMoved
+            return cipher
+        }
+        else {
+            return nil
+        }
+    }
+
+    func decrypt(with key: Data) -> Data? {
+        var plain = Data(count: self.length + kCCKeySizeAES256)
+        var dataOutMoved = 0
+        let status: CCCryptorStatus =
+            key.withUnsafeBytes { ptrKey in
+                self.withUnsafeBytes { ptrCipher in
+                    plain.withUnsafeMutableBytes { ptrPlain in
+                        CCCrypt(
+                            CCOperation(kCCDecrypt),
+                            CCAlgorithm(kCCAlgorithmAES128),
+                            CCOptions(kCCOptionPKCS7Padding),
+                            ptrKey, key.count,
+                            nil,
+                            ptrCipher, self.length,
+                            ptrPlain, plain.count,
+                            &dataOutMoved)
+                    }
+                }
+        }
+        #if DEBUG
+            print(String(reflecting: type(of: self)), "\(#function) CCCrypt(Decrypt) status=", status)
+        #endif
+        if status == kCCSuccess {
+            plain.removeSubrange(dataOutMoved..<plain.count)
+            return plain
+        }
+        else {
+            return nil
+        }
+    }
+
+    func hash() -> Data {
+        var hashed = Data(count:Int(CC_SHA256_DIGEST_LENGTH))
+        _ = self.withUnsafeBytes { ptrData in
+            hashed.withUnsafeMutableBytes { ptrHashed in
+                CC_SHA256(ptrData, CC_LONG(self.length), ptrHashed)
+            }
+        }
+        return hashed
+    }
+} // extension NSMutableData
+
 fileprivate extension String {
     func decrypt(with key: Data) -> Data? {
         return Data(base64Encoded: self, options: .ignoreUnknownCharacters)?.decrypt(with: key)
@@ -110,34 +196,19 @@ fileprivate class Validator {
     var strEncryptedMark: String? = nil
     
     init(key: Data) {
-        var binMark: Data? = J1RandomData.shared.get(count: 16)
-//        defer { purge(&binMark) }
-//        defer {
-//            if binMark != nil {
-//                binMark!.resetBytes(in: binMark!.startIndex..<binMark!.endIndex)
-//                binMark = nil
-//            }
-//        }
-        defer {
-            var d = NSMutableData(data: binMark!)
-            d.resetBytes(in: NSMakeRange(0, d.length))
-
-//            binMark!.withUnsafeMutableBytes { (ptr: UnsafeMutableRawBufferPointer) -> Void in
-//                var p = UnsafeMutableRawBufferPointer(ptr)
-//                p[0] = 0
-//            }
-            print(d)
+        guard var binMark = J1RandomData.shared.get(count: 16) else {
+            return
         }
+        defer { binMark.resetBytes(in: NSMakeRange(0, binMark.length)) }
 
-        guard binMark != nil else { return }
-        self.strHashedMark = binMark?.hash().base64EncodedString()
+        self.strHashedMark = binMark.hash().base64EncodedString()
         
         #if DEBUG
-            print(String(reflecting: type(of: self)), "\(#function) binMark   =", binMark! as NSData)
+            print(String(reflecting: type(of: self)), "\(#function) binMark   =", binMark as NSData)
             print(String(reflecting: type(of: self)), "\(#function) strHshMark=", self.strHashedMark!)
         #endif
         
-        var binEncryptedMark: Data? = binMark?.encrypt(with: key)
+        var binEncryptedMark: Data? = binMark.encrypt(with: key)
         defer { purge(&binEncryptedMark) }
         guard binEncryptedMark != nil else { return }
         self.strEncryptedMark = binEncryptedMark?.base64EncodedString()

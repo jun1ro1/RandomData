@@ -180,20 +180,20 @@ class J1RandomData {
     static let shared = J1RandomData()
     static let MaxCount = 4096
     
-    func get(count: Int) -> Data? {
+    func get(count: Int) -> NSMutableData? {
         guard 0 < count && count <= J1RandomData.MaxCount else {
             return nil
         }
         
         // http://blog.sarabande.jp/post/92199466318
         // allocate zeroed memory area whose size is length
-        var data = Data(count: count)
+        let data = NSMutableData(length: count)
         
         // generate a random data and write to the buffer
         var error: OSStatus = errSecSuccess
-        data.withUnsafeMutableBytes { bytes in
-            error = SecRandomCopyBytes(kSecRandomDefault, count, bytes)
-        }
+        let ptr = data?.mutableBytes
+        error = SecRandomCopyBytes(kSecRandomDefault, count, ptr!)
+
         return (error == errSecSuccess) ? data : nil
     }
     
@@ -221,9 +221,10 @@ class J1RandomData {
             let indexCount = min(remains, J1RandomData.MaxCount)
             // J1RandomData.get generates count bytes random data
             // calculate the enough size of random data
-            guard let indecies = self.get(count: indexCount)?.als(radix: UInt8(charCount)) else {
+            guard let data: NSData = self.get(count: indexCount) else {
                 return nil
             }
+            let indecies = Data(referencing: data).als(radix: UInt8(charCount))
             
             let str = String( indecies.map { charArray[Int($0)] } )
             guard str.count > 0 else {
