@@ -10,7 +10,7 @@ import Foundation
 
 class J1Cryptor {
     static var core: J1CryptorCore = J1CryptorCore.shared
-    var key: Data?
+    var key: CryptorKey?
     
     init() {
         self.key = nil
