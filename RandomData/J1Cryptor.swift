@@ -10,7 +10,7 @@ import Foundation
 
 class J1Cryptor {
     static var core: J1CryptorCore = J1CryptorCore.shared
-    var key: Data?
+    var key: CryptorKeyType?
     
     init() {
         self.key = nil
@@ -41,6 +41,20 @@ class J1Cryptor {
     }
 
     func decrypt(cipher: Data) -> Data? {
+        guard self.key != nil else {
+            return nil
+        }
+        return J1Cryptor.core.decrypt(cryptor: self, cipher: cipher)
+    }
+
+    func encrypt(plain: String) -> String? {
+        guard self.key != nil else {
+            return nil
+        }
+        return J1Cryptor.core.encrypt(cryptor: self, plain: plain)
+    }
+
+    func decrypt(cipher: String) -> String? {
         guard self.key != nil else {
             return nil
         }
