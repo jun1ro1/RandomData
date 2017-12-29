@@ -41,11 +41,11 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
 
 print("==========")
 
-let password = "The quick brown fox jumps over the lazy white dog."
-J1CryptorCore.shared.create(password: password)
-
 let Deutsch = """
+https://ja.wikipedia.org/wiki/歓喜の歌
+
 An die Freude
+   Johann Christoph Friedrich von Schiller
 
 O Freunde, nicht diese Töne!
 Sondern laßt uns angenehmere
@@ -98,7 +98,10 @@ Such' ihn über'm Sternenzelt!
 """
 
 let Japanisch = """
+https://ja.wikipedia.org/wiki/歓喜の歌
+
 「歓喜に寄せて」
+   ヨーハン・クリストフ・フリードリヒ・フォン・シラー
 
 おお友よ、このような音ではない！
 我々はもっと心地よい
@@ -110,12 +113,8 @@ let Japanisch = """
 崇高な汝（歓喜）の聖所に入る
 
 汝が魔力は再び結び合わせる
-（1803年改稿）
 時流が強く切り離したものを
 すべての人々は兄弟となる
-（1785年初稿:
-時流の刀が切り離したものを
-貧しき者らは王侯の兄弟となる）
 汝の柔らかな翼が留まる所で
 
 ひとりの友の友となるという
@@ -155,68 +154,79 @@ let Japanisch = """
 """
 
 
+var password = "The quick brown fox jumps over the lazy white dog."
+J1CryptorCore.shared.create(password: password)
 let cryptor = J1Cryptor()
-print("----------")
+
 cryptor.open(password: password)
-var plain       = "The plain text. very long long 123456789012345678901234567890"
-var plainData   = plain.data(using: .utf8, allowLossyConversion: true)!
-var cipher      = cryptor.encrypt(plain: plainData)!
-var replainData = cryptor.decrypt(cipher: cipher)!
-var replain     = String(data: replainData, encoding: .utf8)!
+var plainText   = "The plain text. very long long 123456789012345678901234567890"
+var cipherText  = cryptor.encrypt(plain: plainText)!
+var replainText = cryptor.decrypt(cipher: cipherText)!
 cryptor.close()
+print("----------")
+print("plainText   =", plainText)
+print("|")
+print("cipherText  =", cipherText)
+print("|")
+print("replainTExt =", replainText)
+print("----------")
 
-print("plain       =", plain)
-print("plainData   =", plainData   as NSData)
-print("cipher      =", cipher      as NSData)
-print("replainData =", replainData as NSData)
-print("replain     =", replain)
-
-//cryptor.open(password: password) {
-//    plain       = Deutsch
-//    plainData   = plain.data(using: .utf8, allowLossyConversion: true)!
-//    cipher      = cryptor.encrypt(plain: plainData)!
-//    replainData = cryptor.decrypt(cipher: cipher)!
-//    replain     = String(data: replainData, encoding: .utf8)!
-//
-//    print("plain       =", plain)
-//    print("plainData   =", plainData   as NSData)
-//    print("cipher      =", cipher      as NSData)
-//    print("replainData =", replainData as NSData)
-//    print("replain     =", replain)
-//}
-//
-//cryptor.open(password: password) {
-//    plain       = Japanisch
-//    plainData   = plain.data(using: .utf8, allowLossyConversion: true)!
-//    cipher      = cryptor.encrypt(plain: plainData)!
-//    replainData = cryptor.decrypt(cipher: cipher)!
-//    replain     = String(data: replainData, encoding: .utf8)!
-//
-//    print("plain       =", plain)
-//    print("plainData   =", plainData   as NSData)
-//    print("cipher      =", cipher      as NSData)
-//    print("replainData =", replainData as NSData)
-//    print("replain     =", replain)
-//}
-
-var cipherText = ""
-
-cryptor .open(password: password) {
-    plain      = Deutsch
-    cipherText = cryptor.encrypt(plain: plain)!
-    replain    = cryptor.decrypt(cipher: cipherText)!
-
-    print("plain       =", plain)
+cryptor.open(password: password) {
+    plainText   = Deutsch
+    cipherText  = cryptor.encrypt(plain: plainText)!
+    replainText = cryptor.decrypt(cipher: cipherText)!
+    print("----------")
+    print("plainText   =", plainText)
+    print("|")
     print("cipherText  =", cipherText)
-    print("replain     =", replain)
+    print("|")
+    print("replainTExt =", replainText)
+    print("----------")
 }
 
-cryptor .open(password: password) {
-    plain      = Japanisch
-    cipherText = cryptor.encrypt(plain: plain)!
-    replain    = cryptor.decrypt(cipher: cipherText)!
-
-    print("plain       =", plain)
+cryptor.open(password: password) {
+    plainText   = Japanisch
+    cipherText  = cryptor.encrypt(plain: plainText)!
+    replainText = cryptor.decrypt(cipher: cipherText)!
+    print("----------")
+    print("plainText   =", plainText)
+    print("|")
     print("cipherText  =", cipherText)
-    print("replain     =", replain)
+    print("|")
+    print("replainTExt =", replainText)
+    print("----------")
 }
+
+let newpassword = "pass"
+guard cryptor.change(password: password, to: newpassword)! else {
+    exit(1)
+}
+password = newpassword
+
+cryptor.open(password: password) {
+    plainText   = Deutsch
+    cipherText  = cryptor.encrypt(plain: plainText)!
+    replainText = cryptor.decrypt(cipher: cipherText)!
+    print("----------")
+    print("plainText   =", plainText)
+    print("|")
+    print("cipherText  =", cipherText)
+    print("|")
+    print("replainTExt =", replainText)
+    print("----------")
+}
+
+cryptor.open(password: password) {
+    plainText   = Japanisch
+    cipherText  = cryptor.encrypt(plain: plainText)!
+    replainText = cryptor.decrypt(cipher: cipherText)!
+    print("----------")
+    print("plainText   =", plainText)
+    print("|")
+    print("cipherText  =", cipherText)
+    print("|")
+    print("replainTExt =", replainText)
+    print("----------")
+}
+
+

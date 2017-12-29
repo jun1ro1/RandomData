@@ -33,6 +33,13 @@ class J1Cryptor {
         body()
     }
 
+    func change(password oldpass: String, to newpass: String) -> Bool? {
+        guard self.key == nil else {
+            return nil
+        }
+        return J1Cryptor.core.change(password: oldpass, to: newpass)
+    }
+
     func encrypt(plain: Data) -> Data? {
         guard self.key != nil else {
             return nil

@@ -90,7 +90,6 @@ fileprivate extension Data {
 } // extension Data
 
 
-
 fileprivate extension String {
     func decrypt(with key: CryptorKeyType) -> CryptorKeyType? {
         return CryptorKeyType(base64Encoded: self, options: .ignoreUnknownCharacters)?.decrypt(with: key)
@@ -101,7 +100,10 @@ fileprivate extension String {
     }
 
     func decrypt(with key: CryptorKeyType) -> String? {
-        guard let data = Data(base64Encoded: self, options: [])?.decrypt(with: key) else { return nil }
+        guard var data = Data(base64Encoded: self, options: [])?.decrypt(with: key) else {
+            return nil
+        }
+        defer { data.reset() }
         return String(data: data, encoding: .utf8)
     }
 } // extension String
@@ -170,7 +172,16 @@ class J1CryptorCore {
     var strEncCEK: String
 
     // instance variables
-    var sessions: [Int: CryptorKeyType]
+    struct Session {
+        var cryptor:              J1Cryptor
+        var binKEKencryptedBySEK: CryptorKeyType
+
+        init(cryptor: J1Cryptor, key: CryptorKeyType) {
+            self.cryptor              = cryptor
+            self.binKEKencryptedBySEK = key
+        }
+    }
+    var sessions: [Int: Session]
     fileprivate var validator: Validator?
 
     static var shared = J1CryptorCore()
@@ -184,33 +195,28 @@ class J1CryptorCore {
     }
 
     // MARK: - methods
-    func create(password: String) {
+    private func getKEK(password: String, salt: CryptorKeyType) -> CryptorKeyType? {
         // create SALT
-        guard var binSALT: CryptorKeyType = J1RandomData.shared.get(count: 16) else { return }
-        defer { binSALT.reset() }
-        self.strSALT = binSALT.base64EncodedString()
-
         // convert the password to a Data
         guard var binPASS: CryptorKeyType = password.data(using: .utf8, allowLossyConversion: true) else {
-                return
+            return nil
         }
         defer { binPASS.reset() }
 
         // derivate an CEK with the password and the SALT
         var binKEK = CryptorKeyType(count: Int(kCCKeySizeAES256))
-        defer { binKEK.reset() }
         var status: CCCryptorStatus = CCCryptorStatus(kCCSuccess)
         // https://opensource.apple.com/source/CommonCrypto/CommonCrypto-55010/CommonCrypto/CommonKeyDerivation.h
         // https://github.com/apportable/CommonCrypto/blob/master/include/CommonCrypto/CommonKeyDerivation.h
         // https://stackoverflow.com/questions/25691613/swift-how-to-call-cckeyderivationpbkdf-from-swift
         // https://stackoverflow.com/questions/35749197/how-to-use-common-crypto-and-or-calculate-sha256-in-swift-2-3
         status =
-            binSALT.withUnsafeBytes { ptrSALT in
+            salt.withUnsafeBytes { ptrSALT in
                 binPASS.withUnsafeBytes { ptrPASS in
                     binKEK.withUnsafeMutableBytes { ptrKEK in
                         CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
-                                             ptrPASS,  binPASS.count,
-                                             ptrSALT, binSALT.count,
+                                             ptrPASS, binPASS.count,
+                                             ptrSALT, salt.count,
                                              CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
                                              self.rounds,
                                              ptrKEK, binKEK.count)
@@ -222,10 +228,28 @@ class J1CryptorCore {
             print(String(reflecting: type(of: self)), "\(#function) binKEK   =", binKEK as NSData)
         #endif
         guard status == CCCryptorStatus(kCCSuccess) else {
+            return nil
+        }
+        return binKEK
+    }
+
+    func create(password: String) {
+        // create SALT
+        guard var binSALT: CryptorKeyType = J1RandomData.shared.get(count: 16) else { return }
+        defer { binSALT.reset() }
+
+        // convert the password to a Data
+        guard var binPASS: CryptorKeyType = password.data(using: .utf8, allowLossyConversion: true) else {
+                return
+        }
+        defer { binPASS.reset() }
+
+        // derivate a KEK with the password and the SALT
+        guard let binKEK = self.getKEK(password: password, salt: binSALT) else {
             return
         }
 
-        // create CEK
+        // create a CEK
         guard var binCEK: CryptorKeyType = J1RandomData.shared.get(count: Int(kCCKeySizeAES256)) else {
             return
         }
@@ -239,6 +263,9 @@ class J1CryptorCore {
             return
         }
         defer { binEncCEK.reset() }
+
+        // store a salt and an encrypted CEK
+        self.strSALT = binSALT.base64EncodedString()
         self.strEncCEK = binEncCEK.base64EncodedString()
 
         #if DEBUG
@@ -259,37 +286,10 @@ class J1CryptorCore {
         defer { binSALT.reset() }
 
         // get KEK from SALT, password
-        guard var binPASS: CryptorKeyType = password.data(using: .utf8, allowLossyConversion: true) else {
+        guard var binKEK = self.getKEK(password: password, salt: binSALT) else {
             return nil
         }
-        defer { binPASS.reset() }
-
-        var binKEK = CryptorKeyType(count: Int(kCCKeySizeAES256))
         defer { binKEK.reset() }
-        #if DEBUG
-            print(String(reflecting: type(of: self)), "\(#function) strSALT  =", self.strSALT)
-            print(String(reflecting: type(of: self)), "\(#function) binSALT  =", binSALT as NSData)
-        #endif
-        status =
-            binSALT.withUnsafeBytes { ptrSALT in
-                binPASS.withUnsafeBytes { ptrPASS in
-                    binKEK.withUnsafeMutableBytes { ptrKEK in
-                        CCKeyDerivationPBKDF(CCPBKDFAlgorithm(kCCPBKDF2),
-                                             ptrPASS,  binPASS.count,
-                                             ptrSALT, binSALT.count,
-                                             CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
-                                             self.rounds,
-                                             ptrKEK, binKEK.count)
-                    }
-                }
-        }
-        #if DEBUG
-            print(String(reflecting: type(of: self)), "\(#function) CCKeyDerivationPBKDF status=", status)
-            print(String(reflecting: type(of: self)), "\(#function) binKEK   =", binKEK as NSData)
-        #endif
-        guard status == CCCryptorStatus(kCCSuccess) else {
-            return nil
-        }
 
         // get CEK with KEK
         guard var binCEK: CryptorKeyType = self.strEncCEK.decrypt(with: binKEK) else {
@@ -302,7 +302,7 @@ class J1CryptorCore {
         #endif
 
         // check CEK
-        guard self.validator!.validate(key: binCEK) else {
+        guard self.validator?.validate(key: binCEK) == true else {
             #if DEBUG
                 print(String(reflecting: type(of: self)), "\(#function) validate= false")
             #endif
@@ -319,7 +319,7 @@ class J1CryptorCore {
         }
         defer { binKEKEncryptedWithSEK.reset() }
 
-        self.sessions[ObjectIdentifier(cryptor).hashValue] = binKEKEncryptedWithSEK
+        self.sessions[ObjectIdentifier(cryptor).hashValue] = Session(cryptor: cryptor, key: binKEKEncryptedWithSEK)
         return binSEK
     }
 
@@ -328,11 +328,81 @@ class J1CryptorCore {
         self.sessions.removeValue(forKey: ObjectIdentifier(cryptor).hashValue)
     }
 
+    func change(password oldpass: String, to newpass: String) -> Bool? {
+        // get SALT
+        guard var binSALT = CryptorKeyType(base64Encoded: self.strSALT, options: .ignoreUnknownCharacters) else {
+            return nil
+        }
+        defer { binSALT.reset() }
+
+        // get KEK from SALT, password
+        guard var binKEK = self.getKEK(password: oldpass, salt: binSALT) else {
+            return nil
+        }
+        defer { binKEK.reset() }
+
+        // get CEK with KEK
+        guard var binCEK: CryptorKeyType = self.strEncCEK.decrypt(with: binKEK) else {
+            return nil
+        }
+        defer { binCEK.reset() }
+        #if DEBUG
+            print(String(reflecting: type(of: self)), "\(#function) strEncCEK=", self.strEncCEK)
+            print(String(reflecting: type(of: self)), "\(#function) binCEK   =", binCEK as NSData)
+        #endif
+
+        // check CEK
+        guard self.validator?.validate(key: binCEK) == true else {
+            #if DEBUG
+                print(String(reflecting: type(of: self)), "\(#function) validate= false")
+            #endif
+            return nil
+        }
+
+        // change KEK
+        guard var binNewKEK = self.getKEK(password: newpass, salt: binSALT) else {
+            return nil
+        }
+        defer { binNewKEK.reset() }
+
+        // crypt a CEK with a new KEK
+        guard var binNewEncCEK: CryptorKeyType = binCEK.encrypt(with: binNewKEK) else {
+            return nil
+        }
+        defer { binNewEncCEK.reset() }
+
+        // store a new encrypted CEK
+        self.strEncCEK = binNewEncCEK.base64EncodedString()
+
+        #if DEBUG
+            print(String(reflecting: type(of: self)), "\(#function) binNewKEK    =", binNewKEK as NSData)
+            print(String(reflecting: type(of: self)), "\(#function) binCEK       =", binCEK as NSData)
+            print(String(reflecting: type(of: self)), "\(#function) binNewEncCEK =", binNewEncCEK as NSData)
+        #endif
+
+//        // replace a KEK encrypted with the SEK
+//        self.sessions.keys.forEach { (ci) in
+//            guard let cryptor = self.sessions[ci]?.cryptor else {
+//                return
+//            }
+//            guard let binSEK = cryptor.key else {
+//                return
+//            }
+//            guard let binKEKEncryptedWithSEK: CryptorKeyType = binNewKEK.encrypt(with: binSEK) else {
+//                return
+//            }
+//            self.sessions.updateValue(Session(cryptor: cryptor, key: binKEKEncryptedWithSEK), forKey: ci)
+//        }
+
+        return true
+    }
+
     func encrypt(cryptor: J1Cryptor, plain: Data) -> Data? {
         guard let sek = cryptor.key else {
             return nil
         }
-        guard var kek: CryptorKeyType = self.sessions[ObjectIdentifier(cryptor).hashValue]?.decrypt(with: sek) else {
+        guard var kek: CryptorKeyType =
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -349,7 +419,8 @@ class J1CryptorCore {
         guard let sek = cryptor.key else {
             return nil
         }
-        guard var kek: CryptorKeyType = self.sessions[ObjectIdentifier(cryptor).hashValue]?.decrypt(with: sek) else {
+        guard var kek: CryptorKeyType =
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -366,7 +437,8 @@ class J1CryptorCore {
         guard let sek = cryptor.key else {
             return nil
         }
-        guard var kek: CryptorKeyType = self.sessions[ObjectIdentifier(cryptor).hashValue]?.decrypt(with: sek) else {
+        guard var kek: CryptorKeyType =
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -383,7 +455,8 @@ class J1CryptorCore {
         guard let sek = cryptor.key else {
             return nil
         }
-        guard var kek: CryptorKeyType = self.sessions[ObjectIdentifier(cryptor).hashValue]?.decrypt(with: sek) else {
+        guard var kek: CryptorKeyType =
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
