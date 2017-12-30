@@ -173,12 +173,12 @@ class J1CryptorCore {
 
     // instance variables
     struct Session {
-        var cryptor:              J1Cryptor
-        var binKEKencryptedBySEK: CryptorKeyType
+        var cryptor: J1Cryptor
+        var binITK:  CryptorKeyType  // Inter key: the KEK(Key kncryption Key) encrypted with SEK(Session Key)
 
         init(cryptor: J1Cryptor, key: CryptorKeyType) {
-            self.cryptor              = cryptor
-            self.binKEKencryptedBySEK = key
+            self.cryptor = cryptor
+            self.binITK  = key
         }
     }
     var sessions: [Int: Session]
@@ -328,6 +328,11 @@ class J1CryptorCore {
         self.sessions.removeValue(forKey: ObjectIdentifier(cryptor).hashValue)
     }
 
+    func closeAll() {
+        let cryptors = self.sessions.values
+        cryptors.forEach { self.close(cryptor: $0.cryptor) }
+    }
+
     func change(password oldpass: String, to newpass: String) -> Bool? {
         // get SALT
         guard var binSALT = CryptorKeyType(base64Encoded: self.strSALT, options: .ignoreUnknownCharacters) else {
@@ -402,7 +407,7 @@ class J1CryptorCore {
             return nil
         }
         guard var kek: CryptorKeyType =
-            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binITK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -420,7 +425,7 @@ class J1CryptorCore {
             return nil
         }
         guard var kek: CryptorKeyType =
-            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binITK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -438,7 +443,7 @@ class J1CryptorCore {
             return nil
         }
         guard var kek: CryptorKeyType =
-            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binITK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
@@ -456,7 +461,7 @@ class J1CryptorCore {
             return nil
         }
         guard var kek: CryptorKeyType =
-            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binKEKencryptedBySEK.decrypt(with: sek) else {
+            self.sessions[ObjectIdentifier(cryptor).hashValue]?.binITK.decrypt(with: sek) else {
             return nil
         }
         defer { kek.reset() }
