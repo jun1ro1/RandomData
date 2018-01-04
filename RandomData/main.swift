@@ -9,6 +9,26 @@
 import Foundation
 
 print("Hello, World!")
+let Primes = [
+    2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+    31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
+    73, 79, 83, 89, 97, 101, 103, 107, 109, 113,
+    127, 131, 137, 139, 149, 151, 157, 163, 167, 173,
+    179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
+    233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+    283, 293, 307, 311, 313, 317, 331, 337, 347, 349,
+    353, 359, 367, 373, 379, 383, 389, 397, 401, 409,
+    419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
+    467, 479, 487, 491, 499, 503, 509, 521, 523, 541,
+    547, 557, 563, 569, 571, 577, 587, 593, 599, 601,
+    607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+    661, 673, 677, 683, 691, 701, 709, 719, 727, 733,
+    739, 743, 751, 757, 761, 769, 773, 787, 797, 809,
+    811, 821, 823, 827, 829, 839, 853, 857, 859, 863,
+    877, 881, 883, 887, 907, 911, 919, 929, 937, 941,
+    947, 953, 967, 971, 977, 983, 991, 997, 1009, 1013,
+    1019, 1021
+]
 
 for c in CypherCharacterSet.iterator {
     print(String(format:"%08x", c.rawValue), ":", c.string)
@@ -21,7 +41,7 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
         [.DecimalDigits, .UpperCaseLettersSet, .LowerCaseLettersSet, .AlphaNumericsSet,
          .Base64Set, .ArithmeticCharactersSet, .AlphaNumericSymbolsSet, .AllCharactersSet  ] {
             var counts: [Character: Int] = Dictionary(uniqueKeysWithValues: s.string.map { ($0, 0) })
-            guard let str = J1RandomData.shared.get(count: n, in: s) else {
+            guard let str = try? J1RandomData.shared.get(count: n, in: s) else {
                 print("ERROR")
                 continue
             }
@@ -40,6 +60,23 @@ for n in [8, 10, 16, 32, 64, 256, 1024 ] {
 }
 
 print("==========")
+var nums = Primes
+nums += [1, 8, 10, 16, 32, 64, 256, 1024]
+nums.sort()
+for n in nums {
+    print(n, " ", separator: "", terminator: "")
+    for s: CypherCharacterSet in
+        [.DecimalDigits, .UpperCaseLettersSet, .LowerCaseLettersSet, .AlphaNumericsSet,
+         .Base64Set, .ArithmeticCharactersSet, .AlphaNumericSymbolsSet, .AllCharactersSet  ] {
+            guard let str = try? J1RandomData.shared.get(count: n, in: s) else {
+                print("ERROR")
+                continue
+            }
+            assert(str.count == n, "length error str.count=\(str.count) n=\(n)")
+    }
+}
+print("\n")
+
 
 let Deutsch = """
 https://ja.wikipedia.org/wiki/歓喜の歌
@@ -155,14 +192,18 @@ https://ja.wikipedia.org/wiki/歓喜の歌
 
 
 var password = "The quick brown fox jumps over the lazy white dog."
-J1CryptorCore.shared.create(password: password)
+do {
+    try J1CryptorCore.shared.create(password: password)
+} catch J1CryptorError.cccryptError(let error) {
+    print("error = \(error)")
+}
 let cryptor = J1Cryptor()
 
-cryptor.open(password: password)
+try cryptor.open(password: password)
 var plainText   = "The plain text. very long long 123456789012345678901234567890"
-var cipherText  = cryptor.encrypt(plain: plainText)!
-var replainText = cryptor.decrypt(cipher: cipherText)!
-cryptor.close()
+var cipherText  = try! cryptor.encrypt(plain: plainText)
+var replainText = try! cryptor.decrypt(cipher: cipherText)
+try cryptor.close()
 print("----------")
 print("plainText   =", plainText)
 print("|")
@@ -171,10 +212,10 @@ print("|")
 print("replainTExt =", replainText)
 print("----------")
 
-cryptor.open(password: password) {
+try cryptor.open(password: password) {
     plainText   = Deutsch
-    cipherText  = cryptor.encrypt(plain: plainText)!
-    replainText = cryptor.decrypt(cipher: cipherText)!
+    cipherText  = try! cryptor.encrypt(plain: plainText)
+    replainText = try! cryptor.decrypt(cipher: cipherText)
     print("----------")
     print("plainText   =", plainText)
     print("|")
@@ -184,10 +225,10 @@ cryptor.open(password: password) {
     print("----------")
 }
 
-cryptor.open(password: password) {
+try cryptor.open(password: password) {
     plainText   = Japanisch
-    cipherText  = cryptor.encrypt(plain: plainText)!
-    replainText = cryptor.decrypt(cipher: cipherText)!
+    cipherText  = try! cryptor.encrypt(plain: plainText)
+    replainText = try! cryptor.decrypt(cipher: cipherText)
     print("----------")
     print("plainText   =", plainText)
     print("|")
@@ -198,15 +239,13 @@ cryptor.open(password: password) {
 }
 
 let newpassword = "pass"
-guard cryptor.change(password: password, to: newpassword)! else {
-    exit(1)
-}
-password = newpassword
+try! cryptor.change(password: password, to: newpassword)
+password = "pass"
 
-cryptor.open(password: password) {
+try cryptor.open(password: password) {
     plainText   = Deutsch
-    cipherText  = cryptor.encrypt(plain: plainText)!
-    replainText = cryptor.decrypt(cipher: cipherText)!
+    cipherText  = try! cryptor.encrypt(plain: plainText)
+    replainText = try! cryptor.decrypt(cipher: cipherText)
     print("----------")
     print("plainText   =", plainText)
     print("|")
@@ -216,10 +255,10 @@ cryptor.open(password: password) {
     print("----------")
 }
 
-cryptor.open(password: password) {
+try cryptor.open(password: password) {
     plainText   = Japanisch
-    cipherText  = cryptor.encrypt(plain: plainText)!
-    replainText = cryptor.decrypt(cipher: cipherText)!
+    cipherText  = try! cryptor.encrypt(plain: plainText)
+    replainText = try! cryptor.decrypt(cipher: cipherText)
     print("----------")
     print("plainText   =", plainText)
     print("|")

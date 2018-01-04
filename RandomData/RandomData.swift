@@ -40,7 +40,6 @@ struct CypherCharacterSet: OptionSet, Hashable {
             bit <<= 1
             return r
         }
-
     }
     
     var count: Int {
@@ -176,13 +175,19 @@ struct CypherCharacterSet: OptionSet, Hashable {
     }
 }
 
+enum J1RandomDataError: Error {
+    case unexpected
+    case outOfRange
+    case secError(error: OSStatus)
+}
+
 class J1RandomData {
     static let shared = J1RandomData()
-    static let MaxCount = 4096
+    static let MaxCount = 1024
     
-    func get(count: Int) -> Data? {
-        guard 0 < count && count <= J1RandomData.MaxCount else {
-            return nil
+    func get(count: Int) throws -> Data {
+        guard case 1...J1RandomData.MaxCount = count else {
+            throw J1RandomDataError.outOfRange
         }
         
         // http://blog.sarabande.jp/post/92199466318
@@ -194,12 +199,15 @@ class J1RandomData {
         data.withUnsafeMutableBytes { bytes in
             error = SecRandomCopyBytes(kSecRandomDefault, count, bytes)
         }
-        return (error == errSecSuccess) ? data : nil
+        guard error == errSecSuccess else {
+            throw J1RandomDataError.secError(error: error)
+        }
+        return data
     }
     
-    func get(count: Int, in charSet: CypherCharacterSet ) -> String? {
-        guard 0 < count && count <= J1RandomData.MaxCount else {
-            return nil
+    func get(count: Int, in charSet: CypherCharacterSet ) throws -> String {
+        guard case 1...J1RandomData.MaxCount = count else {
+            throw J1RandomDataError.outOfRange
         }
         
         var charArray: [Character] = charSet.string.map { $0 }
@@ -216,25 +224,24 @@ class J1RandomData {
         
         var string = ""
         string.reserveCapacity(count)
-        var remains = indexTotalCount
-        while remains > 0 {
-            let indexCount = min(remains, J1RandomData.MaxCount)
+        while string.count < count {
+            let indexCount = min(indexTotalCount, J1RandomData.MaxCount)
             // J1RandomData.get generates count bytes random data
             // calculate the enough size of random data
-            guard let indecies = self.get(count: indexCount)?.als(radix: UInt8(charCount)) else {
-                return nil
-            }
-            
+
+            let rand = try self.get(count: indexCount)
+            // let rand = Data(count: indexCount) // when DEBUG
+            let indecies = rand.als(radix: UInt8(charCount))
+
             let str = String( indecies.map { charArray[Int($0)] } )
             guard str.count > 0 else {
                 assertionFailure()
-                return nil
+                throw J1RandomDataError.unexpected
             }
             string  += str
-            remains -= indexCount
         }
-        while string.count > count {
-            string.removeLast() // adjust length
+        if string.count > count {
+            string.removeLast(string.count - count) // adjust length
         }
         return string
     }

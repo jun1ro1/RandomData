@@ -1,3 +1,75 @@
+1 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 101 103 107 109 113 127 131 137 139 149 151 157 163 167 173 179 181 191 193 197 199 211 223 227 229 233 239 241 251 257 263 269 271 277 281 283 293 307 311 313 317 331 337 347 349 353 359 367 373 379 383 389 397 401 409 419 421 431 433 439 443 449 457 461 463 467 479 487 491 499 503 509 521 523 541 547 557 563 569 571 577 587 593 599 601 607 613 617 619 631 641 643 647 653 659 661 673 677 683 691 701 709 719 727 733 739 743 751 757 761 769 773 787 797 (lldb) po str
+"Lbq/Q876ZA6orzqgmskz38nge9I/aaQ5Ei18MV6Oaf3Y0ZmUmr/8OR9xV+xc0UMQzv6U7vhsyhCfsmWM3uXWM2C01WWB2Bghyxn/DJfI60YEUGakebJiQfMiJpraWu1D2mpJOKHQEv9Su0mbebMv1TxkshEMJiri/ppmiO61oQpdMjJbC5knuVLnDhCsGMO3EbtuvXy2aftvqBdm8OdCXW61KuRTxImRkz5OVTmeRTn0/suuENtT86AFZmczRkd8+rdxyA5MGMqmurWd29b4ybDNy3PLKBAoDpqVIzpRSesZEne6pwKcoyF/tAbcvszDEZrNx9URqHdbVBx6W8DA1JWUMxzIBl7zzoPh767aOcQi/jOMvb/AsZdlz1FIOP3LzyRfEjhzBVlxEMU+Si+qdy4YRYvjTPQK/i8DgfkLunNTiCMhTGfpMiMKe4HSb72nbxSXYfpdHI9PYds/pBr3YrF0ExgVAnD6JSj+Z9cYmUuwE17fLuBF1Q/jPfgGDnPnD3awer/5i1+R2dz3MBDr8xppZujTsl5XOE3YBqeMXUQXghbrGXNcR9PjVKXIX3GryhPeyfCaWHoYM8ymUDIoJrMYiqBJfHaEC9rr4YqoqvMO/GOJEOgM0I1g8nkVtC1ZagNpOqzMwzCqi/f1ycsugssaznuFUMsGqMDxCA15HYB4gOkdLMDss8h7XclKVUE2geOeDDUqsQIqAagfWHd1Tx22LWSpMSY7TcF7fNwSSNC9miTHsSel0+M0RX4mymV+LIRWS7c83KjreyO77/jSk2jYqcvc"
+
+(lldb) po str.count
+796
+
+(lldb) po s.string
+"+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+(lldb) po s.string.count
+64
+
+(lldb) ==========
+
+(lldb) po str
+"4aCcaCNNzYpAvqHnwA2P/3b4BnC2I7L1SC9YFuwVXZqZJ6gI0cZmqV0vOEyJyhG0mbTHRDd5WyXao7UcrlS7p15xyK6Uz8AeCgwvCYrt+nwjwcxTzNs1jhJGKh0GedYMup+UR8/Z7KlVsK5eXSed1YIizhiCE3r1hJ7X86gTPe8a2coJzAe6PHhBJMhwIDKzAYejttIoflDHGspKksNnD5VCjg0bB/vYIKj1MXGooHR8ruuJAYLqHrf+onbaimSjabgurXFW5jqZNeQouAfyi7EPbnjtZScv7/SDrs3XdM4K4QJZYGKL14aAX9cZAVvrsS1J4cB9UASKr0GAh8hJdAadjKlMSuJr8qqyJv9sHKQsS7imTbEsiQM8doCFqNyiMQVHRMdX8Ff3EwKhBmuueMzTOpb8vZzhYGDKEE7Lu49NuMfa3WTWfj8+3Sh3gWdZbxLXDoYhBJkEev4wtS6zxxN78Z/1ZtWZwHj7UNGaI5nfPaRIR8n8FG0nX8lC8duDkDJ5+HYefs6C+ikQoVzgvIkIywgyy67OFt8gEJoLCvvtHR9Y/JFL7GezEbNoNoT0A6d/GUn3e6WGZP9kXb08wnexLVciNVXFueB87FP9waNZddUCIu7RHFH4EtCksl2k57ctCToi1t8LZN2f6yNnt18km1NzhPkY59aqMqlES0NlS1JusBZEjb9MKOczt//i6n9ybuusR7aK7bM35i2XbpoUkUruBif6qOmLVQ/vEfzSmRCd5zLKw9nstFYXPzRE"
+
+(lldb) po str.count
+768
+
+(lldb) po num
+error: <EXPR>:3:1: error: use of unresolved identifier 'num'
+num
+^~~
+
+(lldb) po n
+769
+
+Program ended with exit code: 9
+
+
+==========
+1 2 3 5 7 11 13 17 19 23 29 31 37 41 43 47 53 59 61 67 71 73 79 83 89 97 (lldb) po n
+97
+
+(lldb) po str
+"e38232umDF3zGUNYL1REME9zpYj6j7ErKY66U0CLAthSdAer/IDNqFovtLBNhhb9zb5XmUlJgiOab5AQSJtI2ISo/LGibvzX"
+
+(lldb) po str.count
+96
+
+(lldb) po s
+▿ CypherCharacterSet
+- rawValue : 136339968
+
+(lldb) po s.to_s
+error: <EXPR>:3:1: error: value of type 'CypherCharacterSet' has no member 'to_s'
+s.to_s
+^ ~~~~
+
+(lldb) po s.toString
+error: <EXPR>:3:1: error: value of type 'CypherCharacterSet' has no member 'toString'
+s.toString
+^ ~~~~~~~~
+
+(lldb) po s.tostr
+"UNKNOWN rawValue=136339968 "
+
+(lldb) po s.string
+"+/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+Program ended with exit code: 9
+
+＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝＝
+
+
+
+
+
+
+
+
 0x101904b00: 79 cd 94 9f ff ff 1d 03  02 00 00 00 00 00 00 00  y...............
 0x101904b10: 10 00 00 00 00 00 00 00  14 00 00 00 00 00 00 00  ................
 0x101904b20: d0 19 a0 01 01 00 00 00  00 00 00 00 00 00 00 00  ................

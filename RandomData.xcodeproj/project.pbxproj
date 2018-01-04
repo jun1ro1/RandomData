@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F935F2B81FFCAE2F00779243 /* RandomDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F935F2B71FFCAE2F00779243 /* RandomDataTests.swift */; };
+		F935F2BD1FFCE01400779243 /* AsBytes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B921F890BAE00396328 /* AsBytes.swift */; };
+		F935F2BE1FFCE02400779243 /* RandomData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B941F89110400396328 /* RandomData.swift */; };
+		F935F2BF1FFCE04100779243 /* J1CryptorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */; };
+		F935F2C01FFCE04500779243 /* J1Cryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */; };
+		F935F2C11FFD3F6800779243 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E95B8B1F890B8B00396328 /* main.swift */; };
+		F935F2C51FFD44D700779243 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F935F2B91FFCAE2F00779243 /* Info.plist */; };
+		F935F2C71FFD456A00779243 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F935F2C61FFD456A00779243 /* Info.plist */; };
 		F9BD133F1F9CA42B00DA116E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9BD133E1F9CA42B00DA116E /* Security.framework */; };
 		F9D894971FAD6DCF000BB389 /* J1CryptorCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */; };
 		F9DEC7F81FAF35EF00016C88 /* J1Cryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */; };
@@ -28,6 +36,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F935F2B51FFCAE2E00779243 /* RandomDataTest.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandomDataTest.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F935F2B71FFCAE2F00779243 /* RandomDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomDataTests.swift; sourceTree = "<group>"; };
+		F935F2B91FFCAE2F00779243 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F935F2C61FFD456A00779243 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F935F2C81FFD45AC00779243 /* RandomData-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RandomData-Bridging-Header.h"; sourceTree = "<group>"; };
 		F94617E51FD6FE710078D5EE /* DebugMemo.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = DebugMemo.txt; sourceTree = "<group>"; };
 		F9BD133C1F9C767E00DA116E /* RandomData-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RandomData-Bridging-Header.h"; sourceTree = "<group>"; };
 		F9BD133E1F9CA42B00DA116E /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -40,6 +53,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F935F2B21FFCAE2E00779243 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9E95B851F890B8B00396328 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -51,6 +71,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F935F2B61FFCAE2F00779243 /* RandomDataTests */ = {
+			isa = PBXGroup;
+			children = (
+				F935F2C81FFD45AC00779243 /* RandomData-Bridging-Header.h */,
+				F935F2B71FFCAE2F00779243 /* RandomDataTests.swift */,
+				F935F2C61FFD456A00779243 /* Info.plist */,
+			);
+			path = RandomDataTests;
+			sourceTree = "<group>";
+		};
 		F9BD133D1F9CA42B00DA116E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -64,6 +94,7 @@
 			children = (
 				F94617E51FD6FE710078D5EE /* DebugMemo.txt */,
 				F9E95B8A1F890B8B00396328 /* RandomData */,
+				F935F2B61FFCAE2F00779243 /* RandomDataTests */,
 				F9E95B891F890B8B00396328 /* Products */,
 				F9BD133D1F9CA42B00DA116E /* Frameworks */,
 			);
@@ -73,6 +104,7 @@
 			isa = PBXGroup;
 			children = (
 				F9E95B881F890B8B00396328 /* RandomData */,
+				F935F2B51FFCAE2E00779243 /* RandomDataTest.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -86,6 +118,7 @@
 				F9E95B941F89110400396328 /* RandomData.swift */,
 				F9D894961FAD6DCF000BB389 /* J1CryptorCore.swift */,
 				F9DEC7F71FAF35EF00016C88 /* J1Cryptor.swift */,
+				F935F2B91FFCAE2F00779243 /* Info.plist */,
 			);
 			path = RandomData;
 			sourceTree = "<group>";
@@ -93,6 +126,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F935F2B41FFCAE2E00779243 /* RandomDataTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F935F2BA1FFCAE2F00779243 /* Build configuration list for PBXNativeTarget "RandomDataTest" */;
+			buildPhases = (
+				F935F2B11FFCAE2E00779243 /* Sources */,
+				F935F2B21FFCAE2E00779243 /* Frameworks */,
+				F935F2B31FFCAE2E00779243 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RandomDataTest;
+			productName = RandomDataTest;
+			productReference = F935F2B51FFCAE2E00779243 /* RandomDataTest.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F9E95B871F890B8B00396328 /* RandomData */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9E95B8F1F890B8B00396328 /* Build configuration list for PBXNativeTarget "RandomData" */;
@@ -116,10 +166,14 @@
 		F9E95B801F890B8B00396328 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0900;
+				LastSwiftUpdateCheck = 0920;
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "OKU Junichirou";
 				TargetAttributes = {
+					F935F2B41FFCAE2E00779243 = {
+						CreatedOnToolsVersion = 9.2;
+						ProvisioningStyle = Automatic;
+					};
 					F9E95B871F890B8B00396328 = {
 						CreatedOnToolsVersion = 9.0;
 						ProvisioningStyle = Automatic;
@@ -139,11 +193,37 @@
 			projectRoot = "";
 			targets = (
 				F9E95B871F890B8B00396328 /* RandomData */,
+				F935F2B41FFCAE2E00779243 /* RandomDataTest */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		F935F2B31FFCAE2E00779243 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F935F2C71FFD456A00779243 /* Info.plist in Resources */,
+				F935F2C51FFD44D700779243 /* Info.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		F935F2B11FFCAE2E00779243 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F935F2BE1FFCE02400779243 /* RandomData.swift in Sources */,
+				F935F2C01FFCE04500779243 /* J1Cryptor.swift in Sources */,
+				F935F2C11FFD3F6800779243 /* main.swift in Sources */,
+				F935F2BF1FFCE04100779243 /* J1CryptorCore.swift in Sources */,
+				F935F2B81FFCAE2F00779243 /* RandomDataTests.swift in Sources */,
+				F935F2BD1FFCE01400779243 /* AsBytes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9E95B841F890B8B00396328 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -159,6 +239,36 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		F935F2BB1FFCAE2F00779243 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XLW76U7H2R;
+				INFOPLIST_FILE = RandomDataTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = com.me.jun1ro1.RandomDataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		F935F2BC1FFCAE2F00779243 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = XLW76U7H2R;
+				INFOPLIST_FILE = RandomDataTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = com.me.jun1ro1.RandomDataTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
 		F9E95B8D1F890B8B00396328 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -270,7 +380,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XLW76U7H2R;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OBJC_BRIDGING_HEADER = "RandomData/RandomData-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 			};
@@ -281,6 +394,8 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = XLW76U7H2R;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "RandomData/RandomData-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
@@ -290,6 +405,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F935F2BA1FFCAE2F00779243 /* Build configuration list for PBXNativeTarget "RandomDataTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F935F2BB1FFCAE2F00779243 /* Debug */,
+				F935F2BC1FFCAE2F00779243 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		F9E95B831F890B8B00396328 /* Build configuration list for PBXProject "RandomData" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -297,7 +421,7 @@
 				F9E95B8E1F890B8B00396328 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		F9E95B8F1F890B8B00396328 /* Build configuration list for PBXNativeTarget "RandomData" */ = {
 			isa = XCConfigurationList;
@@ -306,7 +430,7 @@
 				F9E95B911F890B8B00396328 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
